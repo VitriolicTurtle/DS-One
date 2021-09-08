@@ -1,4 +1,4 @@
-package java.Server;
+package Server;
 
 import java.io.File;
 import java.rmi.RemoteException;
@@ -8,7 +8,7 @@ import java.util.Scanner;
 public class Server implements ServerInterface {
     private int serverNumber;
     private int port;
-    private final String dataFilename = "C:\\Users\\smol\\Desktop\\uni\\in5020\\assignments\\assignment1\\src\\Assignment1\\Server\\Data\\dataset.csv";
+    private final String dataFilename = "\\src\\main\\java\\Server\\Data\\dataset.csv";
 
     public Server(int serverNumber, int port) {
         this.serverNumber = serverNumber;

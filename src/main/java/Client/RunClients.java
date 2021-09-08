@@ -1,4 +1,4 @@
-package java.Client;
+package Client;
 
 import java.io.File;
 import java.util.Scanner;
@@ -8,7 +8,8 @@ public class RunClients {
         System.out.println("Starting clients ...");
         Client client = new Client(0);
 
-        String filename = "C:\\Users\\smol\\Desktop\\uni\\in5020\\assignments\\assignment1\\src\\Assignment1\\Client\\Queries\\queries_naive.txt";
+        String filename = "src\\main\\java\\Client\\Queries\\queries_naive.txt";
+
         Scanner scanner = null;
         try {
             scanner = new Scanner(new File(filename));
