@@ -1,6 +1,6 @@
-package main.Server;
+package java.Server;
 
-import main.Shared.ServerInfo;
+import java.Shared.ServerInfo;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;

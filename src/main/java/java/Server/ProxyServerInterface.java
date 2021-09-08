@@ -1,9 +1,9 @@
-package main.Server;
+package java.Server;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-import main.Shared.ServerInfo;
+import java.Shared.ServerInfo;
 
 public interface ProxyServerInterface extends Remote {
     // Method to get the address and port number of an available server

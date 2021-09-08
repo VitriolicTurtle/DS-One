@@ -1,8 +1,8 @@
-package main.Client;
+package java.Client;
 
 import main.Server.ProxyServerInterface;
 import main.Server.ServerInterface;
-import main.Shared.ServerInfo;
+import java.Shared.ServerInfo;
 
 import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
