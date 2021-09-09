@@ -5,6 +5,8 @@ import java.rmi.registry.Registry;
 
 public class RunServers {
     public static void main(String[] args) {
+
+        //TODO: Split logic statements and main method in too separate methods.
         System.out.println("Starting servers ...");
 
         Registry registry = null;

@@ -16,11 +16,20 @@ public class Client implements Remote {
     private ProxyServerInterface proxyServer = null;
     private ServerInterface server = null;
 
+    /**
+     *
+     * @param clientNumber
+     */
     public Client(int clientNumber) {
         this.clientNumber = clientNumber;
         startClient();
     }
 
+    /**
+     *
+     * @param query
+     * @param zone
+     */
     public void processQuery(String query, int zone) {
         System.out.println("Processing query: '" + query + "', from zone: " + zone + ".");
 
@@ -68,6 +77,10 @@ public class Client implements Remote {
         }
     }
 
+    /**
+     *
+     * @param musicID
+     */
     private void getTimesPlayed(String musicID) {
         try {
             int result = server.getTimesPlayed(musicID);
@@ -79,6 +92,11 @@ public class Client implements Remote {
         }
     }
 
+    /**
+     *
+     * @param musicID
+     * @param userID
+     */
     private void getTimesPlayedByUser(String musicID, String userID) {
         try {
             int result = server.getTimesPlayedByUser(musicID, userID);
@@ -90,6 +108,10 @@ public class Client implements Remote {
         }
     }
 
+    /**
+     *
+     * @param userID
+     */
     private void getTopThreeMusicByUser(String userID) {
         try {
             String[] result = server.getTopThreeMusicByUser(userID);
@@ -105,6 +127,11 @@ public class Client implements Remote {
         }
     }
 
+    /**
+     *
+     * @param userID
+     * @param genre
+     */
     private void getTopArtistsByUserGenre(String userID, String genre) {
         try {
             String[] result = server.getTopArtistsByUserGenre(userID, genre);
@@ -120,6 +147,11 @@ public class Client implements Remote {
         }
     }
 
+    /**
+     *
+     * @param zone
+     * @return
+     */
     private ServerInfo getServerAssignment(int zone) {
         ServerInfo response = null;
         try {
@@ -132,6 +164,9 @@ public class Client implements Remote {
         return response;
     }
 
+    /**
+     *
+     */
     private void startClient() {
         try {
             // Get the registry

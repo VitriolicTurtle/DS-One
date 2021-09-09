@@ -8,14 +8,22 @@ import java.util.Scanner;
 public class Server implements ServerInterface {
     private int serverNumber;
     private int port;
-    private final String dataFilename = "\\src\\main\\java\\Server\\Data\\dataset.csv";
+    private final String dataFilename = "src\\main\\java\\Server\\Data\\dataset.csv";
 
+    /**
+     *
+     * @param serverNumber
+     * @param port
+     */
     public Server(int serverNumber, int port) {
         this.serverNumber = serverNumber;
         this.port = port;
         startServer();
     }
 
+    /**
+     *
+     */
     private void startServer() {
         try {
             // Export the server to the registry
@@ -28,6 +36,12 @@ public class Server implements ServerInterface {
         System.out.println("server_" + serverNumber + " has started successfully.");
     }
 
+    /**
+     *
+     * @param musicID
+     * @return
+     * @throws RemoteException
+     */
     @Override
     public int getTimesPlayed(String musicID) throws RemoteException {
         System.out.println("getTimesPlayed from server_" + serverNumber);
@@ -41,6 +55,13 @@ public class Server implements ServerInterface {
         return 0;
     }
 
+    /**
+     *
+     * @param musicID
+     * @param userID
+     * @return
+     * @throws RemoteException
+     */
     @Override
     public int getTimesPlayedByUser(String musicID, String userID) throws RemoteException {
         System.out.println("getTimesPlayedByUser from server_" + serverNumber);
@@ -54,6 +75,12 @@ public class Server implements ServerInterface {
         return 0;
     }
 
+    /**
+     *
+     * @param userID
+     * @return
+     * @throws RemoteException
+     */
     @Override
     public String[] getTopThreeMusicByUser(String userID) throws RemoteException {
         System.out.println("getTimesPlayedByUser from server_" + serverNumber);
@@ -67,6 +94,13 @@ public class Server implements ServerInterface {
         return new String[0];
     }
 
+    /**
+     *
+     * @param userID
+     * @param genre
+     * @return
+     * @throws RemoteException
+     */
     @Override
     public String[] getTopArtistsByUserGenre(String userID, String genre) throws RemoteException {
         System.out.println("getTopArtistsByUserGenre from server_" + serverNumber);
@@ -80,11 +114,20 @@ public class Server implements ServerInterface {
         return new String[0];
     }
 
+    /**
+     *
+     * @return
+     * @throws RemoteException
+     */
     @Override
     public int getServerPort() throws RemoteException {
         return port;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public String toString() {
         return "server_" + serverNumber;

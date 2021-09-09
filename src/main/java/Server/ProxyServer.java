@@ -21,11 +21,18 @@ public class ProxyServer implements ProxyServerInterface {
 
     private int[] serverLoads = new int[numServers];
 
+    /**
+     *
+     * @param port
+     */
     public ProxyServer(int port) {
         this.port = port;
         startProxyServer();
     }
 
+    /**
+     *
+     */
     private void startProxyServer() {
         try {
             // Export the proxy-server
@@ -46,12 +53,19 @@ public class ProxyServer implements ProxyServerInterface {
         System.out.println("proxy-server has started successfully.");
     }
 
+    /**
+     *
+     * @param zone
+     * @return
+     * @throws RemoteException
+     */
     @Override
     public ServerInfo getServerAssignment(int zone) throws RemoteException {
         if (zone < 1 || zone > 5) {
             System.out.println("\nError:\nInvalid zone number: " + zone + ".");
             System.exit(1);
         }
+        //TODO: Code cleanup?
 
         // Refer client to closest geographically located server if it has capacity
         if (serverLoads[zone] < 10) {

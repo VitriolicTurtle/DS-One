@@ -5,6 +5,8 @@ import java.util.Scanner;
 
 public class RunClients {
     public static void main(String[] args) {
+        //TODO: Split logic statements and main method, in to separate methods.
+
         System.out.println("Starting clients ...");
         Client client = new Client(0);
 
