@@ -10,7 +10,7 @@ public interface ServerInterface extends Remote {
      * @return
      * @throws RemoteException
      */
-    public int getTimesPlayed(String musicID) throws RemoteException;
+    int getTimesPlayed(String musicID) throws RemoteException;
 
     /**
      * Given a music id and a user id, return the number of times the music
@@ -20,9 +20,7 @@ public interface ServerInterface extends Remote {
      * @return
      * @throws RemoteException
      */
-    public int getTimesPlayedByUser(String musicID, String userID) throws RemoteException;
-
-
+    int getTimesPlayedByUser(String musicID, String userID) throws RemoteException;
 
     /**
      * Given a userID, return a list of top three musics that were played most by that specific user.
@@ -31,9 +29,7 @@ public interface ServerInterface extends Remote {
      * @return
      * @throws RemoteException
      */
-    public String[] getTopThreeMusicByUser(String userID) throws RemoteException;
-
-
+    String[] getTopThreeMusicByUser(String userID) throws RemoteException;
 
     /**
      * Given a user ID and a genre, return a list of top three artists the user has listened to
@@ -42,12 +38,5 @@ public interface ServerInterface extends Remote {
      * @return
      * @throws RemoteException
      */
-    public String[] getTopArtistsByUserGenre(String userID, String genre) throws RemoteException;
-
-    /**
-     * OTHER
-     * @return
-     * @throws RemoteException
-     */
-    public int getServerPort() throws RemoteException;
+    String[] getTopArtistsByUserGenre(String userID, String genre) throws RemoteException;
 }

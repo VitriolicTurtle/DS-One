@@ -28,7 +28,7 @@ public class RunClients {
             String query = data[0];
             int zone = Integer.parseInt(data[1].substring(5, data[1].length()));
 
-            client.processQuery(query, zone);
+            client.processQuery(query, zone - 1);
             break;
         }
     }

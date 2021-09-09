@@ -18,13 +18,13 @@ public class RunServers {
             registry = LocateRegistry.createRegistry(1099);
 
             // Start the 5 processing servers and bind them to the registry
-            for (int i = 1; i <= 5; i++) {
-                servers[i - 1] = new Server(i, 1088 + i);
-                registry.bind("server_" + i, servers[i - 1]);
+            for (int i = 0; i < 5; i++) {
+                servers[i] = new Server(i, 1088 + i);
+                registry.bind("server_" + i, servers[i]);
             }
 
             // Start the proxy-server and bind it to the registry
-            proxyServer = new ProxyServer(1088);
+            proxyServer = new ProxyServer(1087);
             registry.bind("proxy-server", proxyServer);
 
         } catch (Exception e) {

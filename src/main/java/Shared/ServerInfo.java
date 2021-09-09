@@ -7,9 +7,11 @@ public class ServerInfo implements Serializable {
     public int port = -1;
 
     /**
-     *
-     * @param address
-     * @param port
+     * Stores an address and port for a server.
+     * This is used to send the necessary data from the proxy-server to clients describing which server -
+     * the client should connect to.
+     * @param address: the server address.
+     * @param port: the port the server is running on.
      */
     public ServerInfo(String address, int port) {
         this.address = address;
