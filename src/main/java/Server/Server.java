@@ -65,14 +65,33 @@ public class Server implements ServerInterface {
     @Override
     public int getTimesPlayedByUser(String musicID, String userID) throws RemoteException {
         System.out.println("getTimesPlayedByUser from server_" + serverNumber);
+        Scanner scanner = null;
+        int counter = 0;
+
         try {
-            Scanner scanner = new Scanner(new File(dataFilename));
+            scanner = new Scanner(new File(dataFilename));
+
+
         } catch (Exception e) {
             System.out.println("Error: " + e);
             System.out.println("Something went wrong while trying to complete request.");
             System.exit(1);
         }
-        return 0;
+
+
+        //  Scan trough entire dataset and count amount of times listened to song by userID.
+        while (scanner.hasNextLine()) {
+            int userIndex = 3;                                            // Smallest index for user is 3 because there is always minimum 1 artist
+            String line = scanner.nextLine();
+            String[] data = line.split(",");
+            while (!data[userIndex].startsWith("U")){                     // If there are more artists than 1, loop through indexes to find user.
+                userIndex++;
+            }
+            if(data[0].equals(musicID) && data[userIndex].equals(userID)) {
+                counter+=Integer.parseInt(data[userIndex+1]);
+            }
+        }
+        return counter;
     }
 
     /**
