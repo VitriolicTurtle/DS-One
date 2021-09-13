@@ -1,5 +1,11 @@
 package Server;
 
+import Shared.Query;
+import Shared.GetTimesPlayedQuery;
+import Shared.GetTimesPlayedByUserQuery;
+import Shared.GetTopThreeMusicByUserQuery;
+import Shared.GetTopArtistsByUserGenreQuery;
+
 import java.io.File;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -35,6 +41,10 @@ public class Server implements ServerInterface {
             System.exit(1);
         }
         System.out.println("server_" + serverZone + " has started successfully.");
+    }
+
+    public void sendQuery(Query query) throws RemoteException {
+        System.out.println(query);
     }
 
     /**

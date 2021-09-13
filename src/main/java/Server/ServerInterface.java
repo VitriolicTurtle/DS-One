@@ -1,9 +1,13 @@
 package Server;
 
+import Shared.Query;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface ServerInterface extends Remote {
+    void sendQuery(Query query) throws RemoteException;
+
     /**
      * Given a music id, return the number of times that it was played by all the user
      * @param musicID

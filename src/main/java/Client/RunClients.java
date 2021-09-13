@@ -10,7 +10,8 @@ public class RunClients {
         System.out.println("Starting clients ...");
         Client client = new Client(0);
 
-        String filename = "src\\main\\java\\Client\\Queries\\queries_naive.txt";
+        //String filename = "src\\main\\java\\Client\\Queries\\queries_naive.txt";
+        String filename = "/Users/cola/Documents/uni-repos/DS-One/src/main/java/Client/Queries/queries_naive.txt";
 
         Scanner scanner = null;
         try {

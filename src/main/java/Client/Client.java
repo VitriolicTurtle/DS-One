@@ -2,6 +2,11 @@ package Client;
 
 import Server.ProxyServerInterface;
 import Server.ServerInterface;
+import Shared.GetTimesPlayedQuery;
+import Shared.GetTimesPlayedByUserQuery;
+import Shared.GetTopThreeMusicByUserQuery;
+import Shared.GetTopArtistsByUserGenreQuery;
+import Shared.Query;
 import Shared.ServerInfo;
 
 import java.rmi.Remote;
@@ -45,12 +50,12 @@ public class Client implements Remote {
 
     /**
      *
-     * @param query
+     * @param queryString
      * @param zone
      */
-    public void processQuery(String query, int zone) {
+    public void processQuery(String queryString, int zone) {
         //TODO: code cleanup
-        System.out.println("Processing query: '" + query + "', from zone: " + zone + ".");
+        System.out.println("Processing query: '" + queryString + "', from zone: " + zone + ".");
 
         // Get a server address and port from the proxy server.
         // proxyResponse.address and proxyResponse.port respectively
@@ -65,35 +70,49 @@ public class Client implements Remote {
             System.out.println("\nSomething went wrong when client_" + clientNumber + " tried to lookup " + proxyResponse.address + ".");
             System.exit(1);
         }
+        System.out.println("Server " + proxyResponse.address + " assigned.");
 
         // getTimesPlayedByUser(MghDT6bdDT,UFmWNV9BD0)
         // Parse the query
-        String[] data = query.split("\\(");
+        String[] data = queryString.split("\\(");
         String method = data[0];
         String[] arguments = data[1].substring(0, data[1].length() - 1).split(",");
 
         // Invoke the method call
-        switch (method) {
-            case "getTimesPlayed":
-                assert(arguments.length == 1);
-                getTimesPlayed(arguments[0]);
-                break;
-            case "getTimesPlayedByUser":
-                assert(arguments.length == 2);
-                getTimesPlayedByUser(arguments[0], arguments[1]);
-                break;
-            case "getTopThreeMusicByUser":
-                assert(arguments.length == 1);
-                getTopThreeMusicByUser(arguments[0]);
-                break;
-            case "getTopArtistsByUserGenre":
-                assert(arguments.length == 2);
-                getTopArtistsByUserGenre(arguments[0], arguments[1]);
-                break;
-            default:
-                System.out.println("\nError:\n");
-                System.out.println("Invalid remote method query: '" + method + "'.");
-                System.exit(1);
+        try {
+            Query query = null;
+
+            switch (method) {
+                case "getTimesPlayed":
+                    assert (arguments.length == 1);
+                    //getTimesPlayed(arguments[0]);
+                    query = new GetTimesPlayedQuery(zone, arguments[0]);
+                    server.sendQuery(query);
+                    break;
+                case "getTimesPlayedByUser":
+                    assert (arguments.length == 2);
+                    query = new GetTimesPlayedByUserQuery(zone, arguments[0], arguments[1]);
+                    server.sendQuery(query);
+                    break;
+                case "getTopThreeMusicByUser":
+                    assert (arguments.length == 1);
+                    query = new GetTopThreeMusicByUserQuery(zone, arguments[0]);
+                    server.sendQuery(query);
+                    break;
+                case "getTopArtistsByUserGenre":
+                    assert (arguments.length == 2);
+                    query = new GetTopArtistsByUserGenreQuery(zone, arguments[0], arguments[1]);
+                    server.sendQuery(query);
+                    break;
+                default:
+                    System.out.println("\nError:\n");
+                    System.out.println("Invalid remote method query: '" + method + "'.");
+                    System.exit(1);
+            }
+        } catch (Exception e) {
+            System.out.println("\nError:\n" + e);
+            System.out.println("\nSomething went wrong when trying to send query from client_" + clientNumber + " to " + server + ".");
+            System.exit(1);
         }
     }
 
