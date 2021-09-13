@@ -8,7 +8,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Random;
 
-public class ProxyServer implements ProxyServerInterface {
+public class ProxyServer extends Thread implements ProxyServerInterface{
 
     private Random random = new Random();
 

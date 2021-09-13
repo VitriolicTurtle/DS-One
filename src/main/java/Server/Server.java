@@ -1,20 +1,18 @@
 package Server;
 
 import Shared.Query;
-import Shared.GetTimesPlayedQuery;
-import Shared.GetTimesPlayedByUserQuery;
-import Shared.GetTopThreeMusicByUserQuery;
-import Shared.GetTopArtistsByUserGenreQuery;
 
 import java.io.File;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Scanner;
 
-public class Server implements ServerInterface {
+
+public class Server implements ServerInterface, Runnable {
     private int serverZone;
     private int port;
     private final String dataFilename = "src\\main\\java\\Server\\Data\\dataset.csv";
+    ServerProcessTread processThread;
+    ServerQueueThread queueThread;
 
     /**
      * Constructor for server.
@@ -25,6 +23,14 @@ public class Server implements ServerInterface {
         this.serverZone = serverZone;
         this.port = port;
         startServer();
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void run() {
+
     }
 
     /**
@@ -41,6 +47,22 @@ public class Server implements ServerInterface {
             System.exit(1);
         }
         System.out.println("server_" + serverZone + " has started successfully.");
+    }
+
+    /**
+     * Main processing thread, handles requests.
+     */
+    public void startProcessingThread(){
+        this.processThread = new ServerProcessTread();
+        this.processThread.start();
+    }
+
+    /**
+     * Processing thread, handles the request queue coming form clients.
+     */
+    public void startQueueThread(){
+        this.queueThread = new ServerQueueThread();
+        this.queueThread.start();
     }
 
     public void sendQuery(Query query) throws RemoteException {
@@ -151,4 +173,5 @@ public class Server implements ServerInterface {
     public String toString() {
         return "server_" + serverZone;
     }
+
 }

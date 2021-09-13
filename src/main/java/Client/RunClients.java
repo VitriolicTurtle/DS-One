@@ -1,27 +1,20 @@
 package Client;
 
 import java.io.File;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.Scanner;
 
 public class RunClients {
-    public static void main(String[] args) {
-        //TODO: Split logic statements and main method, in to separate methods.
+    Client client;
+    String filename = "src/main/java/Client/Queries/queries_naive.txt";
+    Scanner scanner = null;
 
-        System.out.println("Starting clients ...");
-        Client client = new Client(0);
-
-        //String filename = "src\\main\\java\\Client\\Queries\\queries_naive.txt";
-        String filename = "/Users/cola/Documents/uni-repos/DS-One/src/main/java/Client/Queries/queries_naive.txt";
-
-        Scanner scanner = null;
-        try {
-            scanner = new Scanner(new File(filename));
-        } catch (Exception e) {
-            System.out.println("\nError:\n" + e);
-            System.out.println("Something went wrong when trying to read query file.");
-            System.exit(1);
-        }
-
+    /**
+     * Sends Queries to servers.
+     */
+    public void sendQuery(){
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             String[] data = line.split(" ");
@@ -32,5 +25,32 @@ public class RunClients {
             client.processQuery(query, zone - 1);
             break;
         }
+    }
+
+    /**
+     * Method for creating a client.
+     */
+    public void runClient() {
+        System.out.println("Starting clients ...");
+        client = new Client(0);
+
+        try {
+            scanner = new Scanner(new File(filename));
+        } catch (Exception e) {
+            System.out.println("\nError:\n" + e);
+            System.out.println("Something went wrong when trying to read query file.");
+            System.exit(1);
+        }
+
+    }
+
+    /**
+     * Main thread for client.
+     * @param args runtime arguments.
+     */
+    public static void main(String[] args) {
+        RunClients client = new RunClients();
+        client.runClient();
+        client.sendQuery();
     }
 }

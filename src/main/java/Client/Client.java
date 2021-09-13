@@ -23,6 +23,7 @@ public class Client implements Remote {
 
     /**
      * Constructor for client.
+     *
      * @param clientNumber: unique ID for the client.
      */
     public Client(int clientNumber) {
@@ -49,7 +50,6 @@ public class Client implements Remote {
     }
 
     /**
-     *
      * @param queryString
      * @param zone
      */
@@ -83,31 +83,32 @@ public class Client implements Remote {
             Query query = null;
 
             switch (method) {
-                case "getTimesPlayed":
+                case "getTimesPlayed" -> {
                     assert (arguments.length == 1);
                     //getTimesPlayed(arguments[0]);
                     query = new GetTimesPlayedQuery(zone, arguments[0]);
                     server.sendQuery(query);
-                    break;
-                case "getTimesPlayedByUser":
+                }
+                case "getTimesPlayedByUser" -> {
                     assert (arguments.length == 2);
                     query = new GetTimesPlayedByUserQuery(zone, arguments[0], arguments[1]);
                     server.sendQuery(query);
-                    break;
-                case "getTopThreeMusicByUser":
+                }
+                case "getTopThreeMusicByUser" -> {
                     assert (arguments.length == 1);
                     query = new GetTopThreeMusicByUserQuery(zone, arguments[0]);
                     server.sendQuery(query);
-                    break;
-                case "getTopArtistsByUserGenre":
+                }
+                case "getTopArtistsByUserGenre" -> {
                     assert (arguments.length == 2);
                     query = new GetTopArtistsByUserGenreQuery(zone, arguments[0], arguments[1]);
                     server.sendQuery(query);
-                    break;
-                default:
+                }
+                default -> {
                     System.out.println("\nError:\n");
                     System.out.println("Invalid remote method query: '" + method + "'.");
                     System.exit(1);
+                }
             }
         } catch (Exception e) {
             System.out.println("\nError:\n" + e);
@@ -188,8 +189,9 @@ public class Client implements Remote {
 
     /**
      * Prompts the proxy-server to assign the client a server.
+     *
      * @param zone: the zone in which the client is in.
-     * @return: ServerInfo which contains the address and port for the server assigned by the proxy-server.
+     * @return ServerInfo which contains the address and port for the server assigned by the proxy-server.
      */
     private ServerInfo getServerAssignment(int zone) {
         ServerInfo response = null;
