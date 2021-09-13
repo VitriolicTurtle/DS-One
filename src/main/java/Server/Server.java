@@ -6,34 +6,35 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
 
 public class Server implements ServerInterface {
-    private int serverNumber;
+    private int serverZone;
     private int port;
     private final String dataFilename = "src\\main\\java\\Server\\Data\\dataset.csv";
 
     /**
-     *
-     * @param serverNumber
-     * @param port
+     * Constructor for server.
+     * @param serverZone: which geographical zone the server is in.
+     * @param port: the port the server is running on.
      */
-    public Server(int serverNumber, int port) {
-        this.serverNumber = serverNumber;
+    public Server(int serverZone, int port) {
+        this.serverZone = serverZone;
         this.port = port;
         startServer();
     }
 
     /**
-     *
+     * Exports the server object to the registry.
      */
     private void startServer() {
+        //TODO: bind server to registry
         try {
             // Export the server to the registry
             UnicastRemoteObject.exportObject(this, port);
         } catch (Exception e) {
             System.out.println("\nError:\n" + e);
-            System.out.println("\nSomething went wrong when trying to start server_" + serverNumber + ".");
+            System.out.println("\nSomething went wrong when trying to start server_" + serverZone + ".");
             System.exit(1);
         }
-        System.out.println("server_" + serverNumber + " has started successfully.");
+        System.out.println("server_" + serverZone + " has started successfully.");
     }
 
     /**
@@ -44,7 +45,7 @@ public class Server implements ServerInterface {
      */
     @Override
     public int getTimesPlayed(String musicID) throws RemoteException {
-        System.out.println("getTimesPlayed from server_" + serverNumber);
+        System.out.println("getTimesPlayed from server_" + serverZone);
         try {
             Scanner scanner = new Scanner(new File(dataFilename));
         } catch (Exception e) {
@@ -64,10 +65,9 @@ public class Server implements ServerInterface {
      */
     @Override
     public int getTimesPlayedByUser(String musicID, String userID) throws RemoteException {
-        System.out.println("getTimesPlayedByUser from server_" + serverNumber);
+        System.out.println("getTimesPlayedByUser from server_" + serverZone);
         Scanner scanner = null;
         int counter = 0;
-
         try {
             scanner = new Scanner(new File(dataFilename));
 
@@ -102,7 +102,7 @@ public class Server implements ServerInterface {
      */
     @Override
     public String[] getTopThreeMusicByUser(String userID) throws RemoteException {
-        System.out.println("getTimesPlayedByUser from server_" + serverNumber);
+        System.out.println("getTimesPlayedByUser from server_" + serverZone);
         try {
             Scanner scanner = new Scanner(new File(dataFilename));
         } catch (Exception e) {
@@ -122,7 +122,7 @@ public class Server implements ServerInterface {
      */
     @Override
     public String[] getTopArtistsByUserGenre(String userID, String genre) throws RemoteException {
-        System.out.println("getTopArtistsByUserGenre from server_" + serverNumber);
+        System.out.println("getTopArtistsByUserGenre from server_" + serverZone);
         try {
             Scanner scanner = new Scanner(new File(dataFilename));
         } catch (Exception e) {
@@ -134,21 +134,11 @@ public class Server implements ServerInterface {
     }
 
     /**
-     *
-     * @return
-     * @throws RemoteException
-     */
-    @Override
-    public int getServerPort() throws RemoteException {
-        return port;
-    }
-
-    /**
-     *
+     * Returns the server name as a string.
      * @return
      */
     @Override
     public String toString() {
-        return "server_" + serverNumber;
+        return "server_" + serverZone;
     }
 }

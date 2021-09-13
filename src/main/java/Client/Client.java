@@ -17,12 +17,30 @@ public class Client implements Remote {
     private ServerInterface server = null;
 
     /**
-     *
-     * @param clientNumber
+     * Constructor for client.
+     * @param clientNumber: unique ID for the client.
      */
     public Client(int clientNumber) {
         this.clientNumber = clientNumber;
         startClient();
+    }
+
+    /**
+     * Finds and uses the registry to lookup the proxy-server.
+     */
+    private void startClient() {
+        try {
+            // Get the registry
+            registry = LocateRegistry.getRegistry("localhost", 1099);
+
+            // Lookup the proxy-server
+            proxyServer = (ProxyServerInterface) registry.lookup("proxy-server");
+        } catch (Exception e) {
+            System.out.println("\nError:\n" + e);
+            System.out.println("\nSomething went wrong when trying to start client_" + clientNumber + ".");
+            System.exit(1);
+        }
+        System.out.println("client_" + clientNumber + " has started successfully.");
     }
 
     /**
@@ -31,6 +49,7 @@ public class Client implements Remote {
      * @param zone
      */
     public void processQuery(String query, int zone) {
+        //TODO: code cleanup
         System.out.println("Processing query: '" + query + "', from zone: " + zone + ".");
 
         // Get a server address and port from the proxy server.
@@ -47,6 +66,7 @@ public class Client implements Remote {
             System.exit(1);
         }
 
+        // getTimesPlayedByUser(MghDT6bdDT,UFmWNV9BD0)
         // Parse the query
         String[] data = query.split("\\(");
         String method = data[0];
@@ -148,9 +168,9 @@ public class Client implements Remote {
     }
 
     /**
-     *
-     * @param zone
-     * @return
+     * Prompts the proxy-server to assign the client a server.
+     * @param zone: the zone in which the client is in.
+     * @return: ServerInfo which contains the address and port for the server assigned by the proxy-server.
      */
     private ServerInfo getServerAssignment(int zone) {
         ServerInfo response = null;
@@ -162,23 +182,5 @@ public class Client implements Remote {
             System.exit(1);
         }
         return response;
-    }
-
-    /**
-     *
-     */
-    private void startClient() {
-        try {
-            // Get the registry
-            registry = LocateRegistry.getRegistry("localhost", 1099);
-
-            // Lookup the proxy-server
-            proxyServer = (ProxyServerInterface) registry.lookup("proxy-server");
-        } catch (Exception e) {
-            System.out.println("\nError:\n" + e);
-            System.out.println("\nSomething went wrong when trying to start client_" + clientNumber + ".");
-            System.exit(1);
-        }
-        System.out.println("client_" + clientNumber + " has started successfully.");
     }
 }
