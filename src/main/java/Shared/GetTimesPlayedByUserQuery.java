@@ -10,13 +10,13 @@ public class GetTimesPlayedByUserQuery extends Query {
     public String musicID;
     public String userID;
 
-    public GetTimesPlayedByUserQuery(int zone, String musicID, String userID) {
-        super(zone);
+    public GetTimesPlayedByUserQuery(int zone, int clientNumber, String musicID, String userID) {
+        super(zone, clientNumber);
         this.musicID = musicID;
         this.userID = userID;
     }
 
-    public void run(String filename) {
+    public GetTimesPlayedByUserResponse run(String filename) {
         System.out.println("getTimesPlayedByUser from server_" + this.zone);
         Scanner scanner = null;
         int counter = 0;
@@ -36,12 +36,12 @@ public class GetTimesPlayedByUserQuery extends Query {
             while (!data[userIndex].startsWith("U")){                     // If there are more artists than 1, loop through indexes to find user.
                 userIndex++;
             }
-            if(data[0].equals(musicID) && data[userIndex].equals(userID)) {
+            if(data[0].equals(this.musicID) && data[userIndex].equals(this.userID)) {
                 counter+=Integer.parseInt(data[userIndex+1]);
             }
         }
-        System.out.println("Result: " + counter);
-        //return counter;
+
+        return new GetTimesPlayedByUserResponse(zone, clientNumber, counter);
     }
 
     @Override

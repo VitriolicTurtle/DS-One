@@ -14,7 +14,7 @@ public class RunServers {
      */
     public void createProxyServer(int numServers, int startPort) {
         // Start the proxy-server and bind it to the registry
-        this.proxyServer = new ProxyServer(registry, numServers, startPort + 1);
+        this.proxyServer = new ProxyServer(numServers, startPort + 1);
     }
 
     /**

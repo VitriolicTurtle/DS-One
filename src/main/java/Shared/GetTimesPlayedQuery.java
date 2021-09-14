@@ -6,18 +6,17 @@ package Shared;
 public class GetTimesPlayedQuery extends Query {
     public String musicID;
 
-    public GetTimesPlayedQuery(int zone, String musicID) {
-        super(zone);
+    public GetTimesPlayedQuery(int zone, int clientNumber, String musicID) {
+        super(zone, clientNumber);
         this.musicID = musicID;
     }
 
-    public void run(String filename) {
-        ;
+    public GetTimesPlayedResponse run(String filename) {
+        return null;
     }
 
     @Override
     public String toString() {
         return "GetTimesPlayedQuery(" + musicID + ") zone: " + zone;
     }
-
 }

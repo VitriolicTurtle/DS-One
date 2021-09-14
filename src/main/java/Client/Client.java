@@ -15,7 +15,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 public class Client implements Remote, Serializable {
-
     private int clientNumber;
     private Registry registry = null;
 
@@ -58,13 +57,9 @@ public class Client implements Remote, Serializable {
      * @param zone
      */
     public void processQuery(String queryString, int zone) {
-        //TODO: code cleanup
-        System.out.println("Processing query: '" + queryString + "', from zone: " + zone + ".");
-
         // Get a server address and port from the proxy server.
         // proxyResponse.address and proxyResponse.port respectively
         ServerAddress proxyResponse = getServerAssignment(zone);
-        System.out.println("Server assigned by proxy-server: '" + proxyResponse.address + "'.");
 
         // Lookup the server we have been referred to by the proxy-server
         try {
@@ -74,15 +69,13 @@ public class Client implements Remote, Serializable {
             System.out.println("\nSomething went wrong when client_" + clientNumber + " tried to lookup " + proxyResponse.address + ".");
             System.exit(1);
         }
-        System.out.println("Server " + proxyResponse.address + " assigned.");
 
-        // getTimesPlayedByUser(MghDT6bdDT,UFmWNV9BD0)
         // Parse the query
         String[] data = queryString.split("\\(");
         String method = data[0];
         String[] arguments = data[1].substring(0, data[1].length() - 1).split(",");
 
-        // Invoke the method call
+        // Build the query object and send the query to the server
         try {
             Query query = null;
 
@@ -90,22 +83,22 @@ public class Client implements Remote, Serializable {
                 case "getTimesPlayed" -> {
                     assert (arguments.length == 1);
                     //getTimesPlayed(arguments[0]);
-                    query = new GetTimesPlayedQuery(zone, arguments[0]);
+                    query = new GetTimesPlayedQuery(zone, clientNumber, arguments[0]);
                     server.sendQuery(query);
                 }
                 case "getTimesPlayedByUser" -> {
                     assert (arguments.length == 2);
-                    query = new GetTimesPlayedByUserQuery(zone, arguments[0], arguments[1]);
+                    query = new GetTimesPlayedByUserQuery(zone, clientNumber, arguments[0], arguments[1]);
                     server.sendQuery(query);
                 }
                 case "getTopThreeMusicByUser" -> {
                     assert (arguments.length == 1);
-                    query = new GetTopThreeMusicByUserQuery(zone, arguments[0]);
+                    query = new GetTopThreeMusicByUserQuery(zone, clientNumber, arguments[0]);
                     server.sendQuery(query);
                 }
                 case "getTopArtistsByUserGenre" -> {
                     assert (arguments.length == 2);
-                    query = new GetTopArtistsByUserGenreQuery(zone, arguments[0], arguments[1]);
+                    query = new GetTopArtistsByUserGenreQuery(zone, clientNumber, arguments[0], arguments[1]);
                     server.sendQuery(query);
                 }
                 default -> {

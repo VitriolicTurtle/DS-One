@@ -6,8 +6,8 @@ public class GetTimesPlayedResponse extends Response {
     /**
      * Constructs a new object.
      */
-    public GetTimesPlayedResponse(int zone, int timesPlayed) {
-        super(zone);
+    public GetTimesPlayedResponse(int zone, int clientNumber, int timesPlayed) {
+        super(zone, clientNumber);
         this.timesPlayed = timesPlayed;
     }
 

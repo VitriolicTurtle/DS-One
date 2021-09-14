@@ -13,8 +13,8 @@ import java.util.Map;
 public class GetTopThreeMusicByUserQuery extends Query {
     public String userID;
 
-    public GetTopThreeMusicByUserQuery(int zone, String userID) {
-        super(zone);
+    public GetTopThreeMusicByUserQuery(int zone, int clientNumber, String userID) {
+        super(zone, clientNumber);
         this.userID = userID;
     }
 
@@ -22,7 +22,7 @@ public class GetTopThreeMusicByUserQuery extends Query {
      *
      * @param filename
      */
-    public void run(String filename) {
+    public GetTopThreeMusicByUserResponse run(String filename) {
         System.out.println("GetTopThreeMusicByUserQuery from server_" + this.zone);
         Scanner scanner = null;
         HashMap<String, Integer> topSongsMap = new HashMap<String, Integer>();
@@ -56,10 +56,16 @@ public class GetTopThreeMusicByUserQuery extends Query {
                 return((Map.Entry<String, Integer>) val2).getValue().compareTo(((Map.Entry<String, Integer>) val1).getValue());
             }
         });
+        String[] result = new String[3];
 
-        for(Object s : topSongsArray){
-            System.out.println(((Map.Entry<String, Integer>) s).getKey() + " - Played: " + ((Map.Entry<String, Integer>) s).getValue());
+        for(int i = 0; i < 3; i++){                                          // Prints all objects in array.
+            if(topSongsArray[i] != null) {
+                result[i] = i + ". " + ((Map.Entry<String, Integer>) topSongsArray[i]).getKey() + " - " + ((Map.Entry<String, Integer>) topSongsArray[i]).getValue() + " \n";
+            }
         }
+
+        return new GetTopThreeMusicByUserResponse(zone, clientNumber, result);
+
     }
 
     @Override

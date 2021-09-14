@@ -6,8 +6,8 @@ public class GetTopThreeMusicByUserResponse extends Response {
     /**
      * Constructs a new object.
      */
-    public GetTopThreeMusicByUserResponse(int zone, String[] music) {
-        super(zone);
+    public GetTopThreeMusicByUserResponse(int zone, int clientNumber, String[] music) {
+        super(zone, clientNumber);
         assert(music.length == 3);
         this.music = music;
     }

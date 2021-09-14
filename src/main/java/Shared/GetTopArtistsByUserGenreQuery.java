@@ -7,14 +7,14 @@ public class GetTopArtistsByUserGenreQuery extends Query {
     public String userID;
     public String genre;
 
-    public GetTopArtistsByUserGenreQuery(int zone, String userID, String genre) {
-        super(zone);
+    public GetTopArtistsByUserGenreQuery(int zone, int clientNumber, String userID, String genre) {
+        super(zone, clientNumber);
         this.userID = userID;
         this.genre = genre;
     }
 
-    public void run(String filename) {
-        ;
+    public GetTopArtistsByUserGenreResponse run(String filename) {
+        return null;
     }
 
     @Override

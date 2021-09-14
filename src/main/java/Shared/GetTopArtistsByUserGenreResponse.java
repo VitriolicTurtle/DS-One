@@ -6,8 +6,8 @@ public class GetTopArtistsByUserGenreResponse extends Response {
     /**
      * Constructs a new object.
      */
-    public GetTopArtistsByUserGenreResponse(int zone, String[] artists) {
-        super(zone);
+    public GetTopArtistsByUserGenreResponse(int zone, int clientNumber, String[] artists) {
+        super(zone, clientNumber);
         assert(artists.length == 3);
         this.artists = artists;
     }

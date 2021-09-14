@@ -18,27 +18,30 @@ public class ProxyServer extends Thread implements ProxyServerInterface{
 
     private ServerInterface[] servers;
     private int[] serverQueuesSizes;
+    private int[] serverAssignmentCounts;
 
     /**
      * Constructor for the proxy-server.
      * @param port: the port that the proxy-server runs on.
      */
-    public ProxyServer(Registry registry, int numServers, int port) {
+    public ProxyServer(int numServers, int port) {
         this.numServers = numServers;
         this.port = port;
 
-        // Set up arrays to store the server references and the servers' workloads
+        // Set up arrays to store the server references, the servers' workloads and the counters for how many clients
+        // have been assigned to each server (in intervals of 10)
         this.servers = new ServerInterface[numServers];
         this.serverQueuesSizes = new int[numServers];
+        this.serverAssignmentCounts = new int[numServers];
 
-        startProxyServer(registry);
+        startProxyServer();
     }
 
     /**
      * Exports the proxy-server to the registry.
      * Finds the registry and uses the registry to lookup and store references to the servers.
      */
-    private void startProxyServer(Registry registry) {
+    private void startProxyServer() {
         try {
             // Export the proxy-server
             UnicastRemoteObject.exportObject(this, port);
@@ -59,6 +62,15 @@ public class ProxyServer extends Thread implements ProxyServerInterface{
             System.exit(1);
         }
         System.out.println("proxy-server has started successfully.");
+    }
+
+    private void updateAssignmentCount(int zone) {
+        serverAssignmentCounts[zone]++;
+
+        if (serverAssignmentCounts[zone] >= 10) {
+            new Thread(new ProxyServerQueueUpdater(this, zone)).start();
+            serverAssignmentCounts[zone] = 0;
+        }
     }
 
     /**
@@ -94,24 +106,22 @@ public class ProxyServer extends Thread implements ProxyServerInterface{
         int neighborServer2 = (zone + 1) % numServers;
         int selectedServer;
 
-        // If both of the neighboring servers are also at maximum capacity, we refer the user to the
-        // closest server
+        // If both of the neighboring servers are also at maximum capacity, we refer the user to the closest server
         if (serverQueuesSizes[neighborServer1] >= 10 && serverQueuesSizes[neighborServer2] >= 10) {
             selectedServer = zone;
         }
-
         // If both the neighboring servers have equal workloads to each other, we choose one of them at random
-        if (serverQueuesSizes[neighborServer1] == serverQueuesSizes[neighborServer2]) {
+        else if (serverQueuesSizes[neighborServer1] == serverQueuesSizes[neighborServer2]) {
             selectedServer = (random.nextBoolean()) ? neighborServer1 : neighborServer2;
         }
-
         // Otherwise we choose the neighboring server with the lowest workload
-        //selectedServer =
-        if (serverQueuesSizes[neighborServer1] < serverQueuesSizes[neighborServer2]) {
-            return new ServerAddress("server_" + neighborServer1);
-        } else {
-            return new ServerAddress("server_" + neighborServer2);
+        else {
+            selectedServer = (serverQueuesSizes[neighborServer1] < serverQueuesSizes[neighborServer2]) ? neighborServer1 : neighborServer2;
         }
 
+        // Before returning the server address, we update the server's assignment counter
+        updateAssignmentCount(zone);
+
+        return new ServerAddress("server_" + selectedServer);
     }
 }
