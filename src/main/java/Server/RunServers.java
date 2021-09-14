@@ -34,7 +34,7 @@ public class RunServers {
 
             // Start the 5 processing servers and bind them to the registry
             for (int i = 0; i < numServers; i++) {
-                servers[i] = new Server(i, 1088 + i, registry);
+                servers[i] = new Server(registry, i, 1088 + i);
             }
         } catch (Exception e) {
             System.out.println("Error: " + e);

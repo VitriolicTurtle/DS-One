@@ -20,7 +20,7 @@ public class Server implements ServerInterface, Runnable {
      * @param serverZone: which geographical zone the server is in.
      * @param port: the port the server is running on.
      */
-    public Server(int serverZone, int port, Registry registry) {
+    public Server(Registry registry, int serverZone, int port) {
         this.serverZone = serverZone;
         this.port = port;
         startServer(registry);
