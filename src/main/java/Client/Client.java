@@ -7,7 +7,7 @@ import Shared.GetTimesPlayedByUserQuery;
 import Shared.GetTopThreeMusicByUserQuery;
 import Shared.GetTopArtistsByUserGenreQuery;
 import Shared.Query;
-import Shared.ServerInfo;
+import Shared.ServerAddress;
 
 import java.io.Serializable;
 import java.rmi.Remote;
@@ -63,7 +63,7 @@ public class Client implements Remote, Serializable {
 
         // Get a server address and port from the proxy server.
         // proxyResponse.address and proxyResponse.port respectively
-        ServerInfo proxyResponse = getServerAssignment(zone);
+        ServerAddress proxyResponse = getServerAssignment(zone);
         System.out.println("Server assigned by proxy-server: '" + proxyResponse.address + "'.");
 
         // Lookup the server we have been referred to by the proxy-server
@@ -127,8 +127,8 @@ public class Client implements Remote, Serializable {
      * @param zone: the zone in which the client is in.
      * @return ServerInfo which contains the address and port for the server assigned by the proxy-server.
      */
-    private ServerInfo getServerAssignment(int zone) {
-        ServerInfo response = null;
+    private ServerAddress getServerAssignment(int zone) {
+        ServerAddress response = null;
         try {
             response = proxyServer.getServerAssignment(zone);
         } catch (Exception e) {

@@ -1,14 +1,13 @@
 package Server;
 
-import Shared.ServerInfo;
+import Shared.ServerAddress;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Random;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+
 
 public class ProxyServer extends Thread implements ProxyServerInterface{
     private Random random = new Random();
@@ -64,6 +63,11 @@ public class ProxyServer extends Thread implements ProxyServerInterface{
         System.out.println("proxy-server has started successfully.");
     }
 
+    /**
+     *
+     * @param zone
+     * @throws RemoteException
+     */
     public void updateQueueData(int zone) throws RemoteException {
         int queueSize = servers[zone].getQueueSize();
     }
@@ -75,7 +79,7 @@ public class ProxyServer extends Thread implements ProxyServerInterface{
      * @throws RemoteException
      */
     @Override
-    public ServerInfo getServerAssignment(int zone) throws RemoteException {
+    public ServerAddress getServerAssignment(int zone) throws RemoteException {
         if (zone < 0 || zone > 4) {
             System.out.println("\nError:\nInvalid zone number: " + zone + ".");
             System.exit(1);

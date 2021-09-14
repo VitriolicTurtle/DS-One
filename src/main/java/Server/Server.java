@@ -8,8 +8,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.Lock;
+
 
 
 public class Server implements ServerInterface {
@@ -18,9 +17,7 @@ public class Server implements ServerInterface {
     ConcurrentHashMap<Client, Query> ServerCache = new ConcurrentHashMap<>();
     ConcurrentLinkedQueue<Query> queue = new ConcurrentLinkedQueue<>();
     private final String dataFilename = "src\\main\\java\\Server\\Data\\dataset.csv";
-    ServerProcessTread processThread;
 
-    Lock queueLock = new ReentrantLock();
 
     /**
      * Constructor for server.
@@ -56,15 +53,15 @@ public class Server implements ServerInterface {
     /**
      *
      */
-    public void checkCache(){
-
+    public int checkCache(){
+        return ServerCache.size();
     }
 
     /**
      *
      */
-    public void searchCache(){
-
+    public boolean searchCache(){
+        return true;
     }
 
     /**

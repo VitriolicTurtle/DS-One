@@ -2,7 +2,7 @@ package Shared;
 
 import java.io.Serializable;
 
-public class ServerInfo implements Serializable {
+public class ServerAddress implements Serializable {
     public String address = null;
     public int port = -1;
 
