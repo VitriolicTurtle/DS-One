@@ -27,22 +27,24 @@ public class Client implements Remote, Serializable {
      *
      * @param clientNumber: unique ID for the client.
      */
-    public Client(int clientNumber) {
+    public Client(int clientNumber, int port) {
         this.clientNumber = clientNumber;
-        startClient();
+        startClient(port);
     }
 
     /**
      * Finds and uses the registry to lookup the proxy-server.
      */
-    private void startClient() {
+    private void startClient(int port) {
         try {
-            //TODO: bind client to the registry
             // Get the registry
             registry = LocateRegistry.getRegistry("localhost", port - 6);
 
             // Lookup the proxy-server
             proxyServer = (ProxyServerInterface) registry.lookup("proxy-server");
+
+            // Bind the client to the registry
+            registry.bind("client_" + clientNumber, this);
         } catch (Exception e) {
             System.out.println("\nError:\n" + e);
             System.out.println("\nSomething went wrong when trying to start client_" + clientNumber + ".");

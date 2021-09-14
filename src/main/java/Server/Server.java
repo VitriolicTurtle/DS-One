@@ -6,14 +6,19 @@ import Shared.Query;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Lock;
 
 
-public class Server implements ServerInterface, Runnable {
+public class Server implements ServerInterface {
     private int serverZone;
     private int port;
     private final String dataFilename = "src\\main\\java\\Server\\Data\\dataset.csv";
     ServerProcessTread processThread;
-    ServerQueueThread queueThread;
+
+    Lock queueLock = new ReentrantLock();
 
     /**
      * Constructor for server.
@@ -71,9 +76,8 @@ public class Server implements ServerInterface, Runnable {
     /**
      * Main processing thread, handles requests.
      */
-    public void startProcessingThread(){
-        this.processThread = new ServerProcessTread();
-        this.processThread.start();
+    public void startProcessingThread() {
+        new Thread(new ServerProcessTread(this, this.dataFilename)).start();
     }
 
     /**

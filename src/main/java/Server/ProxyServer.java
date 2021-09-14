@@ -7,6 +7,8 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Random;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ProxyServer extends Thread implements ProxyServerInterface{
     private Random random = new Random();
@@ -62,15 +64,8 @@ public class ProxyServer extends Thread implements ProxyServerInterface{
         System.out.println("proxy-server has started successfully.");
     }
 
-    /**
-     * Fetches the server queue load from the server in the zone provided and updates
-     * the serverQueues array.
-     * @param zone: the zone in which the server is located.
-     * @throws RemoteException
-     */
-    private void updateServerQueues(int zone) throws RemoteException {
-        //TODO: Do this in a thread
-        //serverQueues[zone - 1] = servers[zone - 1].getCurrentQueue();
+    public void updateQueueData(int zone) throws RemoteException {
+        int queueSize = servers[zone].getQueueSize();
     }
 
     /**

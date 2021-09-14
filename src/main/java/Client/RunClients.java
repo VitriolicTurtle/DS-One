@@ -26,11 +26,11 @@ public class RunClients {
     /**
      * Method for creating a client.
      */
-    public void runClient() {
+    public void runClient(int startPort) {
         System.out.println("Starting client");
 
         // Create client object
-        client = new Client(0);
+        client = new Client(0, startPort + 6);
 
         // Create scanner object
         try {
@@ -48,8 +48,12 @@ public class RunClients {
      * @param args runtime arguments.
      */
     public static void main(String[] args) {
+        // ports: registry(startPort), proxy-server(startPort + 1), server0-4(startPort + 2 : startPort + 5), client(startPort + 6)
+        // This variable must be identical in RunServers and RunClients
+        int startPort = 2097;
+
         RunClients client = new RunClients();
-        client.runClient();
+        client.runClient(startPort);
         client.sendQuery();
     }
 }
