@@ -15,6 +15,8 @@ import java.util.concurrent.locks.Lock;
 public class Server implements ServerInterface {
     private int serverZone;
     private int port;
+    ConcurrentHashMap<Client, Query> ServerCache = new ConcurrentHashMap<>();
+    ConcurrentLinkedQueue<Query> queue = new ConcurrentLinkedQueue<>();
     private final String dataFilename = "src\\main\\java\\Server\\Data\\dataset.csv";
     ServerProcessTread processThread;
 
