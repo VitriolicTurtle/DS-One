@@ -1,9 +1,6 @@
 package Client;
 
 import java.io.File;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.Scanner;
 
 public class RunClients {
@@ -23,7 +20,6 @@ public class RunClients {
             int zone = Integer.parseInt(data[1].substring(5, data[1].length()));
 
             client.processQuery(query, zone - 1);
-            break;
         }
     }
 

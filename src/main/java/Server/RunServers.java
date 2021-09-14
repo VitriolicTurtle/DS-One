@@ -1,7 +1,5 @@
 package Server;
 
-import java.rmi.AlreadyBoundException;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -17,7 +15,7 @@ public class RunServers {
      */
     public void CreateProxyServer(int numServers) {
         // Start the proxy-server and bind it to the registry
-        this.proxyServer = new ProxyServer(registry, numServers, 1087);
+        this.proxyServer = new ProxyServer(registry, numServers, startPort + 1);
     }
 
     /**
@@ -30,11 +28,11 @@ public class RunServers {
         servers = new Server[numServers];
         try {
             // Create the registry
-            registry = LocateRegistry.createRegistry(1099);
+            registry = LocateRegistry.createRegistry(startPort);
 
             // Start the 5 processing servers and bind them to the registry
             for (int i = 0; i < numServers; i++) {
-                servers[i] = new Server(registry, i, 1088 + i);
+                servers[i] = new Server(registry, i, startPort + 2 + i);
             }
         } catch (Exception e) {
             System.out.println("Error: " + e);

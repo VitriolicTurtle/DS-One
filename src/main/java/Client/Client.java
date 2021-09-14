@@ -9,11 +9,12 @@ import Shared.GetTopArtistsByUserGenreQuery;
 import Shared.Query;
 import Shared.ServerInfo;
 
+import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-public class Client implements Remote {
+public class Client implements Remote, Serializable {
 
     private int clientNumber;
     private Registry registry = null;
@@ -38,7 +39,7 @@ public class Client implements Remote {
         try {
             //TODO: bind client to the registry
             // Get the registry
-            registry = LocateRegistry.getRegistry("localhost", 1099);
+            registry = LocateRegistry.getRegistry("localhost", port - 6);
 
             // Lookup the proxy-server
             proxyServer = (ProxyServerInterface) registry.lookup("proxy-server");

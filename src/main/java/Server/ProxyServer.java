@@ -45,7 +45,7 @@ public class ProxyServer extends Thread implements ProxyServerInterface{
             UnicastRemoteObject.exportObject(this, port);
 
             // Get the registry
-            registry = LocateRegistry.getRegistry("localhost", 1099);
+            registry = LocateRegistry.getRegistry("localhost", port - 1);
 
             // Lookup the 5 processing servers
             for (int i = 0; i < 5; i++) {

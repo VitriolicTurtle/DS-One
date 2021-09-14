@@ -1,8 +1,8 @@
 package Server;
 
+import Client.Client;
 import Shared.Query;
 
-import java.io.File;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -17,13 +17,15 @@ public class Server implements ServerInterface, Runnable {
 
     /**
      * Constructor for server.
+     *
      * @param serverZone: which geographical zone the server is in.
-     * @param port: the port the server is running on.
+     * @param port:       the port the server is running on.
      */
     public Server(Registry registry, int serverZone, int port) {
         this.serverZone = serverZone;
         this.port = port;
         startServer(registry);
+        startProcessingThread();
     }
 
     /**
@@ -45,6 +47,28 @@ public class Server implements ServerInterface, Runnable {
     }
 
     /**
+     *
+     */
+    public void checkCache(){
+
+    }
+
+    /**
+     *
+     */
+    public void searchCache(){
+
+    }
+
+    /**
+     *
+     */
+    public void addToCache(){
+
+    }
+
+
+    /**
      * Main processing thread, handles requests.
      */
     public void startProcessingThread(){
@@ -53,33 +77,40 @@ public class Server implements ServerInterface, Runnable {
     }
 
     /**
-     * Processing thread, handles the request queue coming form clients.
-     */
-    public void startQueueThread(){
-        this.queueThread = new ServerQueueThread();
-        this.queueThread.start();
-    }
-
-    /**
+     * ServerInterface method that allows for the proxy-server to get the server's current query queue size.
      *
+     * @return int: the current size of the query queue.
+     * @throws RemoteException
      */
-    @Override
-    public void run() {
-
+    public int getQueueSize() throws RemoteException {
+        return queue.size();
     }
 
     /**
      * ServerInterface method that allows for clients to send queries for processing.
+     *
      * @param query: a query object containing information about which client from which zone has sent the query,
-     *             as well as what the query and the query's arguments are.
+     *               as well as what the query and the query's arguments are.
      * @throws RemoteException
      */
     public void sendQuery(Query query) throws RemoteException {
-        System.out.println(query);
+        queue.add(query);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Query fetchQuery() {
+        if (this.queue.size() > 0) {
+            return queue.remove();
+        }
+        return null;
     }
 
     /**
      * Returns the server name as a string.
+     *
      * @return
      */
     @Override
