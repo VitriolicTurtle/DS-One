@@ -9,32 +9,37 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Random;
 
 public class ProxyServer extends Thread implements ProxyServerInterface{
-
     private Random random = new Random();
 
     private Registry registry = null;
     private int port;
-    private final int numServers = 5;
+    private int numServers;
 
-    private ServerInterface[] servers = new ServerInterface[numServers];
-    private int[] serverPorts = new int[numServers];
-
-    private int[] serverQueues = new int[numServers];
+    private ServerInterface[] servers;
+    private int[] serverPorts;
+    private int[] serverQueues;
 
     /**
      * Constructor for the proxy-server.
      * @param port: the port that the proxy-server runs on.
      */
-    public ProxyServer(int port) {
+    public ProxyServer(Registry registry, int numServers, int port) {
+        this.numServers = numServers;
         this.port = port;
-        startProxyServer();
+
+        // Set up arrays to store the server references, the servers' port numbers and the servers' workloads
+        this.servers = new ServerInterface[numServers];
+        this.serverPorts = new int[numServers];
+        this.serverQueues = new int[numServers];
+
+        startProxyServer(registry);
     }
 
     /**
      * Exports the proxy-server to the registry.
      * Finds the registry and uses the registry to lookup and store references to the servers.
      */
-    private void startProxyServer() {
+    private void startProxyServer(Registry registry) {
         try {
             // Export the proxy-server
             UnicastRemoteObject.exportObject(this, port);
@@ -46,6 +51,9 @@ public class ProxyServer extends Thread implements ProxyServerInterface{
             for (int i = 0; i < 5; i++) {
                 servers[i] = (ServerInterface) registry.lookup("server_" + i);
             }
+
+            // Bind the proxy-server to the registry
+            registry.bind("proxy-server", this);
         } catch (Exception e) {
             System.out.println("\nError:\n" + e);
             System.out.println("\nSomething went wrong when trying to start proxy-server.");

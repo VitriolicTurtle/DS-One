@@ -3,8 +3,8 @@ package Shared;
 import java.io.File;
 import java.util.Scanner;
 
-/*
-*   Class that gives the number of times a userID has played a specific musicID based on the dataset.csv.
+/**
+ * Class that gives the number of times a userID has played a specific musicID based on the dataset.csv.
  */
 public class GetTimesPlayedByUserQuery extends Query {
     public String musicID;

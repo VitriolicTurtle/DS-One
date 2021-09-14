@@ -15,7 +15,7 @@ import java.rmi.registry.Registry;
 
 public class Client implements Remote {
 
-    private int clientNumber = -1;
+    private int clientNumber;
     private Registry registry = null;
 
     private ProxyServerInterface proxyServer = null;
@@ -36,6 +36,7 @@ public class Client implements Remote {
      */
     private void startClient() {
         try {
+            //TODO: bind client to the registry
             // Get the registry
             registry = LocateRegistry.getRegistry("localhost", 1099);
 
@@ -113,76 +114,6 @@ public class Client implements Remote {
         } catch (Exception e) {
             System.out.println("\nError:\n" + e);
             System.out.println("\nSomething went wrong when trying to send query from client_" + clientNumber + " to " + server + ".");
-            System.exit(1);
-        }
-    }
-
-    /**
-     *
-     * @param musicID
-     */
-    private void getTimesPlayed(String musicID) {
-        try {
-            int result = server.getTimesPlayed(musicID);
-            System.out.println("Response from " + server + ": " + result);
-        } catch (Exception e) {
-            System.out.println("\nError:\n" + e);
-            System.out.println("\nSomething went wrong when client_" + clientNumber + " invoked method from " + server + ".");
-            System.exit(1);
-        }
-    }
-
-    /**
-     *
-     * @param musicID
-     * @param userID
-     */
-    private void getTimesPlayedByUser(String musicID, String userID) {
-        try {
-            int result = server.getTimesPlayedByUser(musicID, userID);
-            System.out.println("Response from " + server + ": " + result);
-        } catch (Exception e) {
-            System.out.println("\nError:\n" + e);
-            System.out.println("\nSomething went wrong when client_" + clientNumber + " invoked method from " + server + ".");
-            System.exit(1);
-        }
-    }
-
-    /**
-     *
-     * @param userID
-     */
-    private void getTopThreeMusicByUser(String userID) {
-        try {
-            String[] result = server.getTopThreeMusicByUser(userID);
-            System.out.println("Response from " + server + ": ");
-            for (String s : result) {
-                System.out.print(s + " ");
-            }
-            System.out.println();
-        } catch (Exception e) {
-            System.out.println("\nError:\n" + e);
-            System.out.println("\nSomething went wrong when client_" + clientNumber + " invoked method from " + server + ".");
-            System.exit(1);
-        }
-    }
-
-    /**
-     *
-     * @param userID
-     * @param genre
-     */
-    private void getTopArtistsByUserGenre(String userID, String genre) {
-        try {
-            String[] result = server.getTopArtistsByUserGenre(userID, genre);
-            System.out.println("Response from " + server + ": ");
-            for (String s : result) {
-                System.out.print(s + " ");
-            }
-            System.out.println();
-        } catch (Exception e) {
-            System.out.println("\nError:\n" + e);
-            System.out.println("\nSomething went wrong when client_" + clientNumber + " invoked method from " + server + ".");
             System.exit(1);
         }
     }

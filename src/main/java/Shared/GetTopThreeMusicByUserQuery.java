@@ -1,7 +1,7 @@
 package Shared;
 
-/*
- *   Class that gives the top 3 musicIDs a users has listened to based on the dataset.csv.
+/**
+ * Class that gives the top 3 musicIDs a users has listened to based on the dataset.csv.
  */
 public class GetTopThreeMusicByUserQuery extends Query {
     public String userID;

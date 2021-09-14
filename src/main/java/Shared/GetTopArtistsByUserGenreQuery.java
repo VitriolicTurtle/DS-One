@@ -1,7 +1,7 @@
 package Shared;
 
-/*
- *   Class that gives the top 3 artists a specific user ID has listened to based on genre provided based on dataset.csv.
+/**
+ * Class that gives the top 3 artists a specific user ID has listened to based on genre provided based on dataset.csv.
  */
 public class GetTopArtistsByUserGenreQuery extends Query {
     public String userID;

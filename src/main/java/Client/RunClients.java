@@ -14,7 +14,7 @@ public class RunClients {
     /**
      * Sends Queries to servers.
      */
-    public void sendQuery(){
+    public void sendQuery() {
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             String[] data = line.split(" ");
@@ -31,14 +31,17 @@ public class RunClients {
      * Method for creating a client.
      */
     public void runClient() {
-        System.out.println("Starting clients ...");
+        System.out.println("Starting client");
+
+        // Create client object
         client = new Client(0);
 
+        // Create scanner object
         try {
             scanner = new Scanner(new File(filename));
         } catch (Exception e) {
             System.out.println("\nError:\n" + e);
-            System.out.println("Something went wrong when trying to read query file.");
+            System.out.println("Something went wrong when trying to create scanner object.");
             System.exit(1);
         }
 

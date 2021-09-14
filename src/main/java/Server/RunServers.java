@@ -7,48 +7,48 @@ import java.rmi.registry.Registry;
 
 public class RunServers {
     Registry registry = null;
-    ServerInterface[] servers = new Server[5];
+    ServerInterface[] servers;
     ProxyServerInterface proxyServer = null;
 
 
     /**
-     *
+     * Method for initializing the proxy-server instance.
+     * @param numServers: number of servers that the proxy-server will oversee.
      */
-    public void CreateProxyServer() {
-
+    public void CreateProxyServer(int numServers) {
         // Start the proxy-server and bind it to the registry
-        this.proxyServer = new ProxyServer(1087, registry);
-
+        this.proxyServer = new ProxyServer(registry, numServers, 1087);
     }
 
     /**
      * Method for initializing 5 server instances.
-     *
-     * @param amountOfServers Number of Servers to be initialized.
+     * @param numServers: number of servers to be initialized.
      */
-    public void CreateServers(int amountOfServers) {
-        System.out.println("Starting " + amountOfServers + " servers ...");
+    public void CreateServers(int numServers) {
+        System.out.println("Starting " + numServers + " servers ...");
+
+        servers = new Server[numServers];
         try {
             // Create the registry
             registry = LocateRegistry.createRegistry(1099);
 
             // Start the 5 processing servers and bind them to the registry
-            for (int i = 0; i < amountOfServers; i++) {
+            for (int i = 0; i < numServers; i++) {
                 servers[i] = new Server(i, 1088 + i, registry);
             }
-
-
         } catch (Exception e) {
             System.out.println("Error: " + e);
-            System.out.println("Something went wrong when trying to set up and run servers.");
+            System.out.println("Something went wrong when trying to set up and run (processing) servers.");
             System.exit(1);
         }
-        System.out.println("All servers have started successfully.");
+        System.out.println("All (processing) servers have started successfully.");
     }
 
     public static void main(String[] args) {
+        int numServers = 5;
+
         RunServers startServers = new RunServers();
-        startServers.CreateServers(5);
-        startServers.CreateProxyServer();
+        startServers.CreateServers(numServers);
+        startServers.CreateProxyServer(numServers);
     }
 }

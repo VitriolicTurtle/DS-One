@@ -1,7 +1,7 @@
 package Shared;
 
-/*
- *   Class that gives the number of times a musicID has been played in total based on the dataset.csv.
+/**
+ * Class that gives the number of times a musicID has been played in total based on the dataset.csv.
  */
 public class GetTimesPlayedQuery extends Query {
     public String musicID;
