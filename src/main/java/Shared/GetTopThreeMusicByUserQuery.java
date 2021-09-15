@@ -37,7 +37,7 @@ public class GetTopThreeMusicByUserQuery extends Query {
         while (scanner.hasNextLine()) {
             int userIndex = 3;                                                 // Smallest index for user is 3 because there is always minimum 1 artist
             String line = scanner.nextLine();
-            if(line.contains(userID)) {
+            if(line.contains(this.userID)) {
                 String[] data = line.split(",");
                 while (!data[userIndex].startsWith("U")) {                     // If there are more artists than 1, loop through indexes to find user.
                     userIndex++;
@@ -63,7 +63,6 @@ public class GetTopThreeMusicByUserQuery extends Query {
                 result[i] = i + ". " + ((Map.Entry<String, Integer>) topSongsArray[i]).getKey() + " - " + ((Map.Entry<String, Integer>) topSongsArray[i]).getValue() + " \n";
             }
         }
-
         return new GetTopThreeMusicByUserResponse(zone, clientNumber, result);
 
     }
