@@ -34,7 +34,7 @@ public class GetTopArtistsByUserGenreQuery extends Query {
             if(line.contains(this.userID) && line.contains(this.genre)) {
                 String[] data = line.split(",");
                 while (data[artistIndex].startsWith("A")) {                     // While there are more artists than 1, loop through them all.
-                    if (topArtistsMap.containsKey(data[0])) {                    // If the artist is already in the map, add the listen time.
+                    if (topArtistsMap.containsKey(data[artistIndex])) {                    // If the artist is already in the map, add the listen time.
                         topArtistsMap.put(data[artistIndex], topArtistsMap.get(data[artistIndex]) + Integer.parseInt(data[data.length - 1]));
                     } else {                                                      // Else, add artist to hashmap
                         topArtistsMap.put(data[artistIndex], Integer.parseInt(data[data.length - 1]));
