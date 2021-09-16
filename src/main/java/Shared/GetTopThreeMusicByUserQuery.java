@@ -13,8 +13,8 @@ import java.util.Map;
 public class GetTopThreeMusicByUserQuery extends Query {
     public String userID;
 
-    public GetTopThreeMusicByUserQuery(int zone, int clientNumber, String userID) {
-        super(zone, clientNumber);
+    public GetTopThreeMusicByUserQuery(int clientZone, int clientNumber, long sendTime, String userID) {
+        super(clientZone, clientNumber, sendTime);
         this.userID = userID;
     }
 
@@ -22,10 +22,10 @@ public class GetTopThreeMusicByUserQuery extends Query {
      *
      * @param filename
      */
-    public GetTopThreeMusicByUserResponse run(String filename) {
-        System.out.println("GetTopThreeMusicByUserQuery from server_" + this.zone);
+    public GetTopThreeMusicByUserResponse run(String filename, int serverZone) {
         Scanner scanner = null;
-        HashMap<String, Integer> topSongsMap = new HashMap<String, Integer>();
+        HashMap<String, Integer> playCounts = new HashMap<String, Integer>();
+
         try {
             scanner = new Scanner(new File(filename));
         } catch (Exception e) {
@@ -35,40 +35,30 @@ public class GetTopThreeMusicByUserQuery extends Query {
         }
 
         while (scanner.hasNextLine()) {
-            int userIndex = 3;                                                 // Smallest index for user is 3 because there is always minimum 1 artist
             String line = scanner.nextLine();
-            if(line.contains(this.userID)) {
-                String[] data = line.split(",");
-                while (!data[userIndex].startsWith("U")) {                     // If there are more artists than 1, loop through indexes to find user.
-                    userIndex++;
-                }
-                if(topSongsMap.containsKey(data[0])){                          // If song is already in the Hashmap, add times listened to keys value.
-                    topSongsMap.put(data[0], topSongsMap.get(data[0]) + Integer.parseInt(data[userIndex+1]));
-                } else {                                                       //  Else, add the new key and its value.
-                    topSongsMap.put(data[0], Integer.parseInt(data[userIndex+1]));
-                }
+            if (!line.contains(userID)) { continue; }
 
-            }
+            String[] data = line.split(",");
+            String music = data[0];
+            int timesPlayed = Integer.parseInt(data[data.length - 1]);
+            playCounts.put(music, (playCounts.containsKey(music) ? playCounts.get(music) + timesPlayed : timesPlayed));
         }
-        Object[] topSongsArray = topSongsMap.entrySet().toArray();              // Array object created to sort HashMap by value.
-        Arrays.sort(topSongsArray, new Comparator(){                            // Sorts the array based on custom comparator function.
-            public int compare(Object val1, Object val2){
-                return((Map.Entry<String, Integer>) val2).getValue().compareTo(((Map.Entry<String, Integer>) val1).getValue());
-            }
-        });
-        String[] result = new String[3];
 
-        for(int i = 0; i < 3; i++){                                          // Prints all objects in array.
-            if(topSongsArray[i] != null) {
-                result[i] = i + ". " + ((Map.Entry<String, Integer>) topSongsArray[i]).getKey() + " - " + ((Map.Entry<String, Integer>) topSongsArray[i]).getValue() + " \n";
+        String[] topThreeMusic = new String[3];
+        for (int i = 0; i < 3; i++) {
+            Map.Entry<String, Integer> topEntry = null;
+            for (Map.Entry<String, Integer> entry : playCounts.entrySet()) {
+                topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ?  entry : topEntry;
             }
+            playCounts.remove(topEntry.getKey());
+            topThreeMusic[i] = topEntry.getKey();
         }
-        return new GetTopThreeMusicByUserResponse(zone, clientNumber, result);
 
+        return new GetTopThreeMusicByUserResponse(clientNumber, clientZone, serverZone, topThreeMusic);
     }
 
     @Override
     public String toString() {
-        return "GetTopThreeMusicByUserQuery(" + userID + ") zone: " + zone;
+        return "GetTopThreeMusicByUserQuery(" + userID + ") zone: " + clientZone;
     }
 }

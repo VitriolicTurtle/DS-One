@@ -12,7 +12,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class Server implements ServerInterface {
     private int serverZone;
     private int port;
-    ConcurrentHashMap<Client, Query> ServerCache = new ConcurrentHashMap<>();
+
+    //ConcurrentHashMap<Client, Query> serverCache = new ConcurrentHashMap<>();
     ConcurrentLinkedQueue<Query> queue = new ConcurrentLinkedQueue<>();
     private final String dataFilename = "src\\main\\java\\Server\\Data\\dataset.csv";
 
@@ -50,13 +51,6 @@ public class Server implements ServerInterface {
     /**
      *
      */
-    public int checkCache(){
-        return ServerCache.size();
-    }
-
-    /**
-     *
-     */
     public boolean searchCache(){
         return true;
     }
@@ -72,7 +66,7 @@ public class Server implements ServerInterface {
      * Main processing thread, handles requests.
      */
     public void startProcessingThread() {
-        new Thread(new ServerQueryProcessor(this, this.dataFilename)).start();
+        new Thread(new ServerQueryProcessor(this, this.dataFilename, this.serverZone)).start();
     }
 
     /**

@@ -6,8 +6,8 @@ public class GetTopArtistsByUserGenreResponse extends Response {
     /**
      * Constructs a new object.
      */
-    public GetTopArtistsByUserGenreResponse(int zone, int clientNumber, String[] artists) {
-        super(zone, clientNumber);
+    public GetTopArtistsByUserGenreResponse(int clientNumber, int clientZone, int serverZone, String[] artists) {
+        super(clientNumber, clientZone, serverZone);
         assert(artists.length == 3);
         this.artists = artists;
     }
@@ -18,6 +18,9 @@ public class GetTopArtistsByUserGenreResponse extends Response {
      */
     @Override
     public String toString() {
-        return "GetTopArtistsByUserGenreResponse('artists'=[" + artists[0] + ", " + artists[1] + ", " + artists[2] + "]) Zone: " + zone;
+        return "GetTopArtistsByUserGenreResponse('artists'=[" + artists[0] + ", " + artists[1] + ", " + artists[2] + "])" +
+                "clientNumber: " + clientNumber +
+                ", clientZone: " + clientZone +
+                ", serverZone: " + serverZone;
     }
 }

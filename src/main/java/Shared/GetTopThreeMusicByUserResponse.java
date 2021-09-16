@@ -6,8 +6,8 @@ public class GetTopThreeMusicByUserResponse extends Response {
     /**
      * Constructs a new object.
      */
-    public GetTopThreeMusicByUserResponse(int zone, int clientNumber, String[] music) {
-        super(zone, clientNumber);
+    public GetTopThreeMusicByUserResponse(int clientNumber, int clientZone, int serverZone, String[] music) {
+        super(clientNumber, clientZone, serverZone);
         assert(music.length == 3);
         this.music = music;
     }
@@ -18,6 +18,9 @@ public class GetTopThreeMusicByUserResponse extends Response {
      */
     @Override
     public String toString() {
-        return "GetTopThreeMusicByUserResponse('music'=[" + music[0] + ", " + music[1] + ", " + music[2] + "]) Zone: " + zone;
+        return "GetTopThreeMusicByUserResponse('music'=[" + music[0] + ", " + music[1] + ", " + music[2] + "])" +
+                "clientNumber: " + clientNumber +
+                ", clientZone: " + clientZone +
+                ", serverZone: " + serverZone;
     }
 }

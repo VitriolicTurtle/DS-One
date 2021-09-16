@@ -78,27 +78,25 @@ public class Client implements Remote, Serializable {
         // Build the query object and send the query to the server
         try {
             Query query = null;
-
             switch (method) {
                 case "getTimesPlayed" -> {
                     assert (arguments.length == 1);
-                    //getTimesPlayed(arguments[0]);
-                    query = new GetTimesPlayedQuery(zone, clientNumber, arguments[0]);
+                    query = new GetTimesPlayedQuery(zone, clientNumber, System.currentTimeMillis(), arguments[0]);
                     server.sendQuery(query);
                 }
                 case "getTimesPlayedByUser" -> {
                     assert (arguments.length == 2);
-                    query = new GetTimesPlayedByUserQuery(zone, clientNumber, arguments[0], arguments[1]);
+                    query = new GetTimesPlayedByUserQuery(zone, clientNumber, System.currentTimeMillis(), arguments[0], arguments[1]);
                     server.sendQuery(query);
                 }
                 case "getTopThreeMusicByUser" -> {
                     assert (arguments.length == 1);
-                    query = new GetTopThreeMusicByUserQuery(zone, clientNumber, arguments[0]);
+                    query = new GetTopThreeMusicByUserQuery(zone, clientNumber, System.currentTimeMillis(), arguments[0]);
                     server.sendQuery(query);
                 }
                 case "getTopArtistsByUserGenre" -> {
                     assert (arguments.length == 2);
-                    query = new GetTopArtistsByUserGenreQuery(zone, clientNumber, arguments[0], arguments[1]);
+                    query = new GetTopArtistsByUserGenreQuery(zone, clientNumber, System.currentTimeMillis(), arguments[0], arguments[1]);
                     server.sendQuery(query);
                 }
                 default -> {

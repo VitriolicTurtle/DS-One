@@ -6,8 +6,8 @@ public class GetTimesPlayedResponse extends Response {
     /**
      * Constructs a new object.
      */
-    public GetTimesPlayedResponse(int zone, int clientNumber, int timesPlayed) {
-        super(zone, clientNumber);
+    public GetTimesPlayedResponse(int clientNumber, int clientZone, int serverZone, int timesPlayed) {
+        super(clientNumber, clientZone, serverZone);
         this.timesPlayed = timesPlayed;
     }
 
@@ -17,6 +17,9 @@ public class GetTimesPlayedResponse extends Response {
      */
     @Override
     public String toString() {
-        return "GetTimesPlayedResponse('timesPlayed'=" + timesPlayed + ") Zone: " + zone;
+        return "GetTimesPlayedResponse('timesPlayed'=" + timesPlayed + ")" +
+                "clientNumber: " + clientNumber +
+                ", clientZone: " + clientZone +
+                ", serverZone: " + serverZone;
     }
 }

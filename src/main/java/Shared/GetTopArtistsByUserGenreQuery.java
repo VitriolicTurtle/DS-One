@@ -10,16 +10,16 @@ public class GetTopArtistsByUserGenreQuery extends Query {
     public String userID;
     public String genre;
 
-    public GetTopArtistsByUserGenreQuery(int zone, int clientNumber, String userID, String genre) {
-        super(zone, clientNumber);
+    public GetTopArtistsByUserGenreQuery(int clientZone, int clientNumber, long sendTime, String userID, String genre) {
+        super(clientZone, clientNumber, sendTime);
         this.userID = userID;
         this.genre = genre;
     }
 
-    public GetTopArtistsByUserGenreResponse run(String filename) {
-        System.out.println("GetTopArtistsByUserGenreQuery from server_" + this.zone);
+    public GetTopArtistsByUserGenreResponse run(String filename, int serverZone) {
         Scanner scanner = null;
-        HashMap<String, Integer> topArtistsMap = new HashMap<String, Integer>();
+        HashMap<String, Integer> playCounts = new HashMap<String, Integer>();
+
         try {
             scanner = new Scanner(new File(filename));
         } catch (Exception e) {
@@ -29,38 +29,39 @@ public class GetTopArtistsByUserGenreQuery extends Query {
         }
 
         while (scanner.hasNextLine()) {
-            int artistIndex = 1;                                               // Smallest index for artist is 1 because there is always minimum 1 artist
             String line = scanner.nextLine();
-            if(line.contains(this.userID) && line.contains(this.genre)) {
-                String[] data = line.split(",");
-                while (data[artistIndex].startsWith("A")) {                     // While there are more artists than 1, loop through them all.
-                    if (topArtistsMap.containsKey(data[artistIndex])) {                    // If the artist is already in the map, add the listen time.
-                        topArtistsMap.put(data[artistIndex], topArtistsMap.get(data[artistIndex]) + Integer.parseInt(data[data.length - 1]));
-                    } else {                                                      // Else, add artist to hashmap
-                        topArtistsMap.put(data[artistIndex], Integer.parseInt(data[data.length - 1]));
-                    }
-                    artistIndex++;
+            if (!line.contains(userID) || !line.contains(genre)) { continue; }
+
+            String[] data = line.split(",");
+
+            // Find all artists in the data entry
+            for (int i = 1; i < data.length; i++) {
+                if (!data[i].startsWith("A")) { break; }
+
+                // Update the play count for the artist found
+                if (playCounts.containsKey(data[i])) {
+                    playCounts.put(data[i], playCounts.get(data[i]) + 1);
+                } else {
+                    playCounts.put(data[i], 1);
                 }
             }
         }
-        Object[] topArtistsArray = topArtistsMap.entrySet().toArray();              // Array object created to sort HashMap by value.
-        Arrays.sort(topArtistsArray, new Comparator(){                              // Sorts the array based on custom comparator function.
-            public int compare(Object val1, Object val2){
-                return((Map.Entry<String, Integer>) val2).getValue().compareTo(((Map.Entry<String, Integer>) val1).getValue());
-            }
-        });
 
-        String[] result = new String[3];
-        for(int i = 0; i < 3; i++){                                          // Prints all objects in array.
-            if(topArtistsArray[i] != null) {
-                result[i] = i + ". " + "(" + this.userID + ", " + this.genre + ") " + ((Map.Entry<String, Integer>) topArtistsArray[i]).getKey() + " - " + ((Map.Entry<String, Integer>) topArtistsArray[i]).getValue() + " \n";
+        String[] topThreeArtists = new String[3];
+        for (int i = 0; i < 3; i++) {
+            Map.Entry<String, Integer> topEntry = null;
+            for (Map.Entry<String, Integer> entry : playCounts.entrySet()) {
+                topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ? entry : topEntry;
             }
+            playCounts.remove(topEntry.getKey());
+            topThreeArtists[i] = topEntry.getKey();
         }
-        return new GetTopArtistsByUserGenreResponse(zone, clientNumber, result);
+
+        return new GetTopArtistsByUserGenreResponse(clientNumber, clientZone, serverZone, topThreeArtists);
     }
 
     @Override
     public String toString() {
-        return "GetTopArtistsByUserGenreQuery(" + userID + ", " + genre + ") zone: " + zone;
+        return "GetTopArtistsByUserGenreQuery(" + userID + ", " + genre + ") clientZone: " + clientZone;
     }
 }

@@ -3,12 +3,15 @@ package Shared;
 import java.io.Serializable;
 
 public abstract class Query implements Serializable {
-    public int zone;
+    public int clientZone;
     public int clientNumber;
 
-    public Query(int zone, int clientNumber) {
-        this.zone = zone;
+    long sendTime;
+
+    public Query(int clientZone, int clientNumber, long sendTime) {
+        this.clientZone = clientZone;
         this.clientNumber = clientNumber;
+        this.sendTime = sendTime;
     }
-    public abstract Response run(String filename);
+    public abstract Response run(String filename, int serverZone);
 }

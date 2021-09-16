@@ -6,15 +6,17 @@ import Shared.Response;
 public class ServerQueryProcessor implements Runnable {
     Server server;
     String filename;
+    int serverZone;
 
     /**
      * Constructor for a server query processor which will continuously process queries found in a server's query queue.
      * @param server: a reference to the server object containing the query queue.
      * @param filename: the filename of the dataset file necessary to process the query.
      */
-    public ServerQueryProcessor(Server server, String filename) {
+    public ServerQueryProcessor(Server server, String filename, int serverZone) {
         this.server = server;
         this.filename = filename;
+        this.serverZone = serverZone;
     }
 
     /**
@@ -27,8 +29,8 @@ public class ServerQueryProcessor implements Runnable {
         while (true) {
             currentQuery = this.server.fetchQuery();
             if (currentQuery != null) {
-                Response response = currentQuery.run(filename);
-                System.out.println(response);
+                Response response = currentQuery.run(filename, serverZone);
+
             }
         }
 
