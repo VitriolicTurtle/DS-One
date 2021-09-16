@@ -1,7 +1,7 @@
 package Shared;
 
 import java.io.File;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Class that gives the number of times a userID has played a specific musicID based on the dataset.csv.
@@ -14,6 +14,7 @@ public class GetTimesPlayedByUserQuery extends Query {
         super(zone, clientNumber);
         this.musicID = musicID;
         this.userID = userID;
+        this.cacheKey = "getTimesPlayedByUser(" + this.musicID + ", " + this.userID + ")";
     }
 
     public GetTimesPlayedByUserResponse run(String filename) {
@@ -40,8 +41,32 @@ public class GetTimesPlayedByUserQuery extends Query {
                 counter+=Integer.parseInt(data[userIndex+1]);
             }
         }
-
         return new GetTimesPlayedByUserResponse(zone, clientNumber, counter);
+    }
+
+    public GetTimesPlayedByUserResponse cachedRun(List<MusicProfile> cachedMusic, List<UserProfile> cachedUsers){
+        UserProfile tempUser = cachedUsers.stream().filter(user -> this.userID.equals(user.UserID)).findFirst().orElse(null);
+        if(tempUser != null){
+
+            Object[] favoriteMusicsArray = tempUser.favoriteMusics.entrySet().toArray();              // Array object created to sort HashMap by value.
+            Arrays.sort(favoriteMusicsArray, new Comparator(){                                        // Sorts the array based on custom comparator function.
+                public int compare(Object val1, Object val2){
+                    return((Map.Entry<String, MusicProfile>) val2).getValue().musicID.compareTo(((Map.Entry<String, MusicProfile>) val1).getValue().musicID);
+                }
+            });
+
+            String result = "";
+            result = ((Map.Entry<String, MusicProfile>) favoriteMusicsArray[0]).getValue().musicID;
+            System.err.println("CACHED " + result);
+            result = "1";
+
+            return new GetTimesPlayedByUserResponse(zone, clientNumber, Integer.parseInt(result));
+
+        }
+
+
+        //return new GetTimesPlayedByUserResponse(zone, clientNumber, Integer.parseInt(result));
+        return null;
     }
 
     @Override

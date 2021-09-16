@@ -1,11 +1,7 @@
 package Shared;
 
 import java.io.File;
-import java.util.Scanner;
-import java.util.HashMap;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class that gives the top 3 musicIDs a users has listened to based on the dataset.csv.
@@ -13,9 +9,12 @@ import java.util.Map;
 public class GetTopThreeMusicByUserQuery extends Query {
     public String userID;
 
+
     public GetTopThreeMusicByUserQuery(int zone, int clientNumber, String userID) {
         super(zone, clientNumber);
         this.userID = userID;
+        this.cacheKey = "getTopThreeMusicByUserQuery(" + this.userID + ")";
+
     }
 
     /**
@@ -23,7 +22,7 @@ public class GetTopThreeMusicByUserQuery extends Query {
      * @param filename
      */
     public GetTopThreeMusicByUserResponse run(String filename) {
-        System.out.println("GetTopThreeMusicByUserQuery from server_" + this.zone);
+        System.out.println("getTopThreeMusicByUserQuery from server_" + this.zone);
         Scanner scanner = null;
         HashMap<String, Integer> topSongsMap = new HashMap<String, Integer>();
         try {
@@ -65,6 +64,31 @@ public class GetTopThreeMusicByUserQuery extends Query {
         }
         return new GetTopThreeMusicByUserResponse(zone, clientNumber, result);
 
+    }
+
+    public GetTopThreeMusicByUserResponse cachedRun(List<MusicProfile> cachedMusic, List<UserProfile> cachedUsers){
+        /*
+        cachedUsers.stream().filter(user -> this.userID.equals(user.UserID)).findFirst().orElse(null);
+        UserProfile tempUser = cachedUsers.stream().filter(user -> this.userID.equals(user.UserID)).findFirst().orElse(null);
+        if(tempUser != null){
+
+            Object[] topSongsArray = tempUser.favoriteMusics.entrySet().toArray();              // Array object created to sort HashMap by value.
+            Arrays.sort(topSongsArray, new Comparator(){                                        // Sorts the array based on custom comparator function.
+                public int compare(Object val1, Object val2){
+                    return((Map.Entry<String, Integer>) val2).getValue().compareTo(((Map.Entry<String, Integer>) val1).getValue());
+                }
+            });
+            String[] result = new String[3];
+            for(int i = 0; i < 3; i++){                                          // Prints all objects in array.
+                if(topSongsArray[i] != null) {
+                    result[i] = i + ". " + ((Map.Entry<String, Integer>) topSongsArray[i]).getKey() + " - " + ((Map.Entry<String, Integer>) topSongsArray[i]).getValue() + " \n";
+                }
+            }
+            return new GetTopThreeMusicByUserResponse(zone, clientNumber, result);
+
+        }
+         */
+        return null;
     }
 
     @Override

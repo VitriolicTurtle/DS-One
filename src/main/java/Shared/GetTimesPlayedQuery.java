@@ -1,6 +1,7 @@
 package Shared;
 
 import java.io.File;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -9,13 +10,16 @@ import java.util.Scanner;
 public class GetTimesPlayedQuery extends Query {
     public String musicID;
 
+
     public GetTimesPlayedQuery(int zone, int clientNumber, String musicID) {
         super(zone, clientNumber);
         this.musicID = musicID;
+        this.cacheKey = "getTimesPlayed(" + this.musicID + ")";
+
     }
 
     public GetTimesPlayedResponse run(String filename) {
-        System.out.println("GetTimesPlayed from server_" + this.zone);
+        System.out.println("getTimesPlayed from server_" + this.zone);
         Scanner scanner = null;
         int counter = 0;
         try {
@@ -41,6 +45,12 @@ public class GetTimesPlayedQuery extends Query {
         //System.out.println(this.musicID + " - PLAYED: " + counter);
         return new GetTimesPlayedResponse(zone, clientNumber, counter);
     }
+
+    public GetTimesPlayedResponse cachedRun(List<MusicProfile> cachedMusic, List<UserProfile> cachedUsers){
+        //return new GetTimesPlayedResponse(zone, clientNumber, Integer.parseInt(result));
+        return null;
+    }
+    
 
     @Override
     public String toString() {

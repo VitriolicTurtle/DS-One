@@ -10,14 +10,17 @@ public class GetTopArtistsByUserGenreQuery extends Query {
     public String userID;
     public String genre;
 
+
     public GetTopArtistsByUserGenreQuery(int zone, int clientNumber, String userID, String genre) {
         super(zone, clientNumber);
         this.userID = userID;
         this.genre = genre;
+        this.cacheKey = "getTopArtistsByUserGenreQuery(" + this.userID + ", " + this.genre + ")";
+
     }
 
     public GetTopArtistsByUserGenreResponse run(String filename) {
-        System.out.println("GetTopArtistsByUserGenreQuery from server_" + this.zone);
+        System.out.println("getTopArtistsByUserGenreQuery from server_" + this.zone);
         Scanner scanner = null;
         HashMap<String, Integer> topArtistsMap = new HashMap<String, Integer>();
         try {
@@ -58,6 +61,12 @@ public class GetTopArtistsByUserGenreQuery extends Query {
         }
         return new GetTopArtistsByUserGenreResponse(zone, clientNumber, result);
     }
+
+    public GetTopArtistsByUserGenreResponse cachedRun(List<MusicProfile> cachedMusic, List<UserProfile> cachedUsers){
+        //return new GetTopArtistsByUserGenreResponse(zone, clientNumber, result);
+        return null;
+    }
+
 
     @Override
     public String toString() {
