@@ -1,12 +1,10 @@
 package Server;
 
-import Client.Client;
 import Shared.Query;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Server implements ServerInterface {
@@ -47,6 +45,7 @@ public class Server implements ServerInterface {
         }
         System.out.println("server_" + serverZone + " has started successfully.");
     }
+
 
     /**
      *
