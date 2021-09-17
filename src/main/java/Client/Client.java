@@ -9,7 +9,6 @@ import Shared.GetTopArtistsByUserGenreQuery;
 import Shared.Query;
 import Shared.ServerAddress;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
@@ -73,8 +72,10 @@ public class Client implements ClientCallbackInterface, Serializable {
         // Set the final event timestamp representing that the query has been returned to the client object
         response.timeStamps[4] = System.currentTimeMillis();
         responses.add(response);
-        System.out.println(responses.size());
-        System.out.println(expectedResponses);
+
+        System.out.println("Client received query response.");
+        System.out.println("Received responses: " + responses.size());
+
 
 //        expectedResponses--;
     // Jank test.
@@ -143,7 +144,6 @@ public class Client implements ClientCallbackInterface, Serializable {
 
             while (responses.size() != 0){
                 Query response = responses.remove();
-                System.out.println(response);
                 writer.write(response.toString() + "\n");
             }
             writer.close();
