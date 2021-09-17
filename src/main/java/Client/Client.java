@@ -45,10 +45,13 @@ public class Client implements ClientCallbackInterface, Serializable {
     private void startClient(int port) {
         try {
             // Get the registry
-            registry = LocateRegistry.getRegistry("localhost", port - 6);
+            registry = LocateRegistry.getRegistry("localhost", port - 7);
 
             // Lookup the proxy-server
             proxyServer = (ProxyServerInterface) registry.lookup("proxy-server");
+
+            // Export the client to the registry
+            UnicastRemoteObject.exportObject(this, port);
 
             // Bind the client to the registry
             registry.bind("client_" + clientNumber, this);
