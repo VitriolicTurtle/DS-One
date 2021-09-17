@@ -9,14 +9,22 @@ import Shared.GetTopArtistsByUserGenreQuery;
 import Shared.Query;
 import Shared.ServerAddress;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.LinkedList;
 
 public class Client implements ClientCallbackInterface, Serializable {
     private int clientNumber;
     private Registry registry = null;
+    private LinkedList<Query> responses = new LinkedList<>();
+
+    private int expectedResponses = 0;
 
     private ProxyServerInterface proxyServer = null;
     private ServerInterface server = null;
@@ -37,10 +45,13 @@ public class Client implements ClientCallbackInterface, Serializable {
     private void startClient(int port) {
         try {
             // Get the registry
-            registry = LocateRegistry.getRegistry("localhost", port - 6);
+            registry = LocateRegistry.getRegistry("localhost", port - 7);
 
             // Lookup the proxy-server
             proxyServer = (ProxyServerInterface) registry.lookup("proxy-server");
+
+            // Export the client to the registry
+            UnicastRemoteObject.exportObject(this, port);
 
             // Bind the client to the registry
             registry.bind("client_" + clientNumber, this);
@@ -61,8 +72,15 @@ public class Client implements ClientCallbackInterface, Serializable {
     public void sendQueryResponse(Query response) throws RemoteException {
         // Set the final event timestamp representing that the query has been returned to the client object
         response.timeStamps[4] = System.currentTimeMillis();
+        responses.add(response);
+        System.out.println(responses.size());
+        System.out.println(expectedResponses);
 
-        System.out.println(response);
+//        expectedResponses--;
+    // Jank test.
+        if (responses.size() == expectedResponses) {
+            writeToFile();
+        }
     }
 
     /**
@@ -110,11 +128,30 @@ public class Client implements ClientCallbackInterface, Serializable {
             // Finally, set the timestamp for when the query is sent from the client, then send it to the server
             query.timeStamps[0] = System.currentTimeMillis();
             server.sendQuery(query);
+            expectedResponses++;
         } catch (Exception e) {
             System.out.println("\nError:\n" + e);
             System.out.println("\nSomething went wrong when trying to send query from client_" + clientNumber + " to " + server + ".");
             System.exit(1);
         }
+    }
+
+    private void writeToFile() {
+
+        try {
+            FileWriter writer = new FileWriter("src\\main\\java\\Client\\Outputs\\output_naive.txt");
+
+            while (responses.size() != 0){
+                Query response = responses.remove();
+                System.out.println(response);
+                writer.write(response.toString() + "\n");
+            }
+            writer.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**

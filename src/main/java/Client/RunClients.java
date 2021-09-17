@@ -30,7 +30,7 @@ public class RunClients {
         System.out.println("Starting client");
 
         // Create client object
-        client = new Client(0, startPort + 6);
+        client = new Client(0, startPort + 7);
 
         // Create scanner object
         try {
@@ -50,7 +50,7 @@ public class RunClients {
     public static void main(String[] args) {
         // ports: registry(startPort), proxy-server(startPort + 1), server0-4(startPort + 2 : startPort + 5), client(startPort + 6)
         // This variable must be identical in RunServers and RunClients
-        int startPort = 2097;
+        int startPort = 3097;
 
         RunClients client = new RunClients();
         client.runClient(startPort);

@@ -46,7 +46,7 @@ public class RunServers {
 
         // ports: registry(startPort), proxy-server(startPort + 1), server0-4(startPort + 2 : startPort + 5), client(startPort + 6)
         // This variable must be identical in RunServers and RunClients
-        int startPort = 2097;
+        int startPort = 3097;
 
         RunServers startServers = new RunServers();
         startServers.createServers(numServers, startPort);

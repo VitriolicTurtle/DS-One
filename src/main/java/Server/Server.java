@@ -1,6 +1,5 @@
 package Server;
 
-import Client.Client;
 import Client.ClientCallbackInterface;
 import Shared.Query;
 
@@ -18,8 +17,8 @@ public class Server implements ServerInterface {
     //ConcurrentHashMap<Client, Query> serverCache = new ConcurrentHashMap<>();
     ConcurrentLinkedQueue<Query> queue = new ConcurrentLinkedQueue<>();
 
-    //private final String dataFilename = "src\\main\\java\\Server\\Data\\dataset.csv"; // Windows
-    private final String dataFilename = "src/main/java/Server/Data/dataset.csv"; // MAC
+    private final String dataFilename = "src\\main\\java\\Server\\Data\\dataset.csv"; // Windows
+    //private final String dataFilename = "src/main/java/Server/Data/dataset.csv"; // MAC
 
     /**
      * Constructor for server.
@@ -94,7 +93,6 @@ public class Server implements ServerInterface {
     public void sendQuery(Query query) throws RemoteException {
         query.timeStamps[1] = System.currentTimeMillis();
         queue.add(query);
-        System.out.println("ADD!");
     }
 
     /**
