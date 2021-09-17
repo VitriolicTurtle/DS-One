@@ -19,11 +19,12 @@ public class ServerQueryProcessor implements Runnable {
 
     /**
      * Adds latency based on zone.
+     *
      * @param currentQuery Current Query sent by Client
      * @throws InterruptedException Thread interference.
      */
     public void checkConnectedZone(Query currentQuery) throws InterruptedException {
-        if(currentQuery.clientZone == server.getServerZone()) {
+        if (currentQuery.clientZone == server.getServerZone()) {
             Thread.sleep(80);
         } else {
             Thread.sleep(170);
@@ -41,7 +42,9 @@ public class ServerQueryProcessor implements Runnable {
             currentQuery = this.server.fetchQuery();
 
             // If no query object was returned, we continue waiting for the queue to fill
-            if (currentQuery == null) { continue; }
+            if (currentQuery == null) {
+                continue;
+            }
 
             try {
                 checkConnectedZone(currentQuery);
