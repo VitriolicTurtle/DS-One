@@ -1,5 +1,6 @@
 package Shared;
 
+import javax.swing.*;
 import java.io.File;
 import java.util.*;
 
@@ -56,11 +57,40 @@ public class GetTimesPlayedByUserQuery extends Query {
         result = counter;
     }
 
+    public boolean serverCacheRun(List<UserProfile> cachedUsers){
+        // Find user profile object in list
+        UserProfile tempUser = cachedUsers.stream().filter(user -> this.userID.equals(user.UserID)).findFirst().orElse(null);
+        if(tempUser != null){
+            // Default value -1
+            int cachedResult = -1;
+            // Scan the entire favouriteMusics hashmap to see if it exists there.
+            // For each favouriteMusics object (genre).
+            for(Map.Entry<String, HashMap<MusicProfile, Integer>> genreEntry : tempUser.favoriteMusics.entrySet()){
+                // For each favouriteMusics object value (songs in hashmap by genre key).
+                for(Map.Entry<MusicProfile, Integer> songEntry: genreEntry.getValue().entrySet()){
+                    // Check if the musicID is present.
+                    if(songEntry.getKey().musicID.equals(this.musicID)){
+                        cachedResult = songEntry.getValue();
+                    }
+                }
+            }
+            System.err.println("CACHED " + cachedResult);
+            if(cachedResult >= 0) {
+                result = cachedResult;
+                return true;
+            } else{
+                return false;
+            }
+
+            //return new GetTimesPlayedByUserResponse(zone, clientNumber, Integer.parseInt(result));
+
+        }
+        return false;
+    }
     /*
     public GetTimesPlayedByUserResponse cachedRun(List<MusicProfile> cachedMusic, List<UserProfile> cachedUsers){
         UserProfile tempUser = cachedUsers.stream().filter(user -> this.userID.equals(user.UserID)).findFirst().orElse(null);
         if(tempUser != null){
-
             Object[] favoriteMusicsArray = tempUser.favoriteMusics.entrySet().toArray();              // Array object created to sort HashMap by value.
             Arrays.sort(favoriteMusicsArray, new Comparator(){                                        // Sorts the array based on custom comparator function.
                 public int compare(Object val1, Object val2){

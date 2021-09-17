@@ -45,6 +45,8 @@ public abstract class Query implements Serializable {
     public int getProcessingServer() { return this.processingServer; }
 
     public abstract void run(String filename);
+    public abstract boolean serverCacheRun(List<UserProfile> cachedUsers);
+
     //public abstract Response cachedRun(List<MusicProfile> cachedMusic, List<UserProfile> cachedUsers);
 
     @Override

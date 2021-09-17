@@ -75,6 +75,12 @@ public class GetTopArtistsByUserGenreQuery extends Query {
         result = topThreeArtists;
     }
 
+    public boolean serverCacheRun(List<UserProfile> cachedUsers){
+        //System.err.println("TopA");
+
+        return false;
+    }
+
     /*
     public GetTopArtistsByUserGenreResponse cachedRun(List<MusicProfile> cachedMusic, List<UserProfile> cachedUsers){
         //return new GetTopArtistsByUserGenreResponse(zone, clientNumber, result);

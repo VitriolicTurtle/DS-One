@@ -1,6 +1,7 @@
 package Shared;
 
 import java.io.File;
+import java.util.List;
 import java.util.Scanner;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,6 +63,12 @@ public class GetTopThreeMusicByUserQuery extends Query {
         }
 
         result = topThreeMusic;
+    }
+
+    public boolean serverCacheRun(List<UserProfile> cachedUsers){
+        //System.err.println("Top3M");
+
+        return false;
     }
 
         /*

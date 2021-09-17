@@ -7,13 +7,13 @@ import Shared.UserProfile;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 
 
 public class ServerQueryProcessor implements Runnable {
     Server server;
     String filename;
-    List<MusicProfile> cachedMusic = new ArrayList();
+    //List<MusicProfile> cachedMusic = new ArrayList();
     List<UserProfile> cachedUsers = new ArrayList();
 
     /**
@@ -50,10 +50,12 @@ public class ServerQueryProcessor implements Runnable {
         // HARDCODED TEMPORARY ADDED USER:
         UserProfile tU = new UserProfile();
         MusicProfile mU = new MusicProfile();
-        mU.musicID = "MghDT6bdDT";
+        mU.musicID = "MYHD63MFuZ";
         mU.Artists = "AfmxYc67c7";
         tU.UserID = "UFmWNV9BD0";
-        tU.favoriteMusics.put("Metal", mU);
+        HashMap<MusicProfile, Integer> xxx = new HashMap<>();
+        xxx.put(mU, 9);
+        tU.favoriteMusics.put("Metal", xxx);
         cachedUsers.add(tU);
         /////////////////////////////////////////////////
 
@@ -74,7 +76,9 @@ public class ServerQueryProcessor implements Runnable {
             currentQuery.timeStamps[2] = System.currentTimeMillis();
 
             // Run the query. This will populate the query result inside the query object
-            currentQuery.run(filename);
+            if(currentQuery.serverCacheRun(cachedUsers) == false){
+                currentQuery.run(filename);
+            }
 
             // Update the timestamp reflecting the event of finishing the query processing
             currentQuery.timeStamps[3] = System.currentTimeMillis();

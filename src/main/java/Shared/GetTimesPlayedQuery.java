@@ -53,6 +53,12 @@ public class GetTimesPlayedQuery extends Query {
         result = counter;
     }
 
+    public boolean serverCacheRun(List<UserProfile> cachedUsers){
+        //System.err.println("TimesP");
+
+        return false;
+    }
+
     /*
     public GetTimesPlayedResponse cachedRun(List<MusicProfile> cachedMusic, List<UserProfile> cachedUsers){
         //return new GetTimesPlayedResponse(zone, clientNumber, Integer.parseInt(result));
