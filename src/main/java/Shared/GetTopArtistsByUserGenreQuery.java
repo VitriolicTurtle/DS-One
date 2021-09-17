@@ -76,10 +76,10 @@ public class GetTopArtistsByUserGenreQuery extends Query {
     }
 
     public boolean serverCacheRun(List<UserProfile> cachedUsers){
-        //System.err.println("TopA");
 
         return false;
     }
+
 
     /*
     public GetTopArtistsByUserGenreResponse cachedRun(List<MusicProfile> cachedMusic, List<UserProfile> cachedUsers){

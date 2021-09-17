@@ -74,16 +74,11 @@ public class GetTimesPlayedByUserQuery extends Query {
                     }
                 }
             }
-            System.err.println("CACHED " + cachedResult);
             if(cachedResult >= 0) {
                 result = cachedResult;
+                //System.err.println("CACHED " + cachedResult);
                 return true;
-            } else{
-                return false;
             }
-
-            //return new GetTimesPlayedByUserResponse(zone, clientNumber, Integer.parseInt(result));
-
         }
         return false;
     }

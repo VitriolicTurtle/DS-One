@@ -66,35 +66,12 @@ public class GetTopThreeMusicByUserQuery extends Query {
     }
 
     public boolean serverCacheRun(List<UserProfile> cachedUsers){
-        //System.err.println("Top3M");
+
 
         return false;
     }
 
-        /*
-    public GetTopThreeMusicByUserResponse cachedRun(List<MusicProfile> cachedMusic, List<UserProfile> cachedUsers){
-        cachedUsers.stream().filter(user -> this.userID.equals(user.UserID)).findFirst().orElse(null);
-        UserProfile tempUser = cachedUsers.stream().filter(user -> this.userID.equals(user.UserID)).findFirst().orElse(null);
-        if(tempUser != null){
-
-            Object[] topSongsArray = tempUser.favoriteMusics.entrySet().toArray();              // Array object created to sort HashMap by value.
-            Arrays.sort(topSongsArray, new Comparator(){                                        // Sorts the array based on custom comparator function.
-                public int compare(Object val1, Object val2){
-                    return((Map.Entry<String, Integer>) val2).getValue().compareTo(((Map.Entry<String, Integer>) val1).getValue());
-                }
-            });
-            String[] result = new String[3];
-            for(int i = 0; i < 3; i++){                                          // Prints all objects in array.
-                if(topSongsArray[i] != null) {
-                    result[i] = i + ". " + ((Map.Entry<String, Integer>) topSongsArray[i]).getKey() + " - " + ((Map.Entry<String, Integer>) topSongsArray[i]).getValue() + " \n";
-                }
-            }
-            return new GetTopThreeMusicByUserResponse(zone, clientNumber, result);
-
-        }
-        return null;
-    }
-         */
+        
 
     @Override
     public String toString() {

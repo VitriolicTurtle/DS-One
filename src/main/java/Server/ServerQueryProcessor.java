@@ -49,14 +49,24 @@ public class ServerQueryProcessor implements Runnable {
 
         // HARDCODED TEMPORARY ADDED USER:
         UserProfile tU = new UserProfile();
+        UserProfile tU2 = new UserProfile();
         MusicProfile mU = new MusicProfile();
-        mU.musicID = "MYHD63MFuZ";
-        mU.Artists = "AfmxYc67c7";
-        tU.UserID = "UFmWNV9BD0";
-        HashMap<MusicProfile, Integer> xxx = new HashMap<>();
-        xxx.put(mU, 9);
-        tU.favoriteMusics.put("Metal", xxx);
+        MusicProfile mU2 = new MusicProfile();
+        mU.musicID = "Mg5NsThkSC";
+        mU.Artists[0].add("AfmxYc67c7");
+        mU2.musicID = "MHAtRFWXh4";
+        mU2.Artists[0].add("AGYuE8gTdf");
+        tU.UserID = "ULOC2yXffF";
+        tU2.UserID = "URPy97W1GA";
+        HashMap<MusicProfile, Integer> tempHashMap = new HashMap<>();
+        tempHashMap.put(mU, 9);
+        HashMap<MusicProfile, Integer> tempHashMap2 = new HashMap<>();
+        tempHashMap2.put(mU, 9);
+        tempHashMap2.put(mU2, 9);
+        tU.favoriteMusics.put("Metal", tempHashMap);
+        tU2.favoriteMusics.put("Pop", tempHashMap2);
         cachedUsers.add(tU);
+        cachedUsers.add(tU2);
         /////////////////////////////////////////////////
 
         Query currentQuery = null;

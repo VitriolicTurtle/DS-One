@@ -1,7 +1,9 @@
 package Shared;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -55,6 +57,24 @@ public class GetTimesPlayedQuery extends Query {
 
     public boolean serverCacheRun(List<UserProfile> cachedUsers){
         //System.err.println("TimesP");
+        int cachedResult = 0;
+        for(UserProfile user : cachedUsers){
+            for(Map.Entry<String, HashMap<MusicProfile, Integer>> genreEntry : user.favoriteMusics.entrySet()){
+                // For each favouriteMusics object value (songs in hashmap by genre key).
+                for(Map.Entry<MusicProfile, Integer> songEntry: genreEntry.getValue().entrySet()){
+                    // Check if the musicID is present.
+                    if(songEntry.getKey().musicID.equals(this.musicID)){
+                        cachedResult += songEntry.getValue();
+                    }
+                }
+            }
+        }
+
+        if(cachedResult > 0) {
+            //System.err.println("CACHED " + cachedResult);
+            result = cachedResult;
+            return true;
+        }
 
         return false;
     }
