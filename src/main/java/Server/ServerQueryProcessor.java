@@ -1,10 +1,11 @@
 package Server;
 
-import Shared.Query;
+import Shared.*;
 
 public class ServerQueryProcessor implements Runnable {
     Server server;
     String filename;
+    Boolean serverCaching;
 
     /**
      * Constructor for a server query processor which will continuously process queries found in a server's query queue.
@@ -12,9 +13,10 @@ public class ServerQueryProcessor implements Runnable {
      * @param server:   a reference to the server object containing the query queue.
      * @param filename: the filename of the dataset file necessary to process the query.
      */
-    public ServerQueryProcessor(Server server, String filename) {
+    public ServerQueryProcessor(Server server, String filename, Boolean serverCaching) {
         this.server = server;
         this.filename = filename;
+        this.serverCaching = serverCaching;
     }
 
     /**
@@ -55,8 +57,24 @@ public class ServerQueryProcessor implements Runnable {
             // If a query was fetched from the queue, we update the timestamp for this event before processing it
             currentQuery.timeStamps[2] = System.currentTimeMillis();
 
+            // Check if we can resolve the query from cache
+            boolean cacheHit = false;
+            if (serverCaching) {
+                if (currentQuery instanceof GetTimesPlayedByUserQuery) {
+                    cacheHit = server.searchCache((GetTimesPlayedByUserQuery) currentQuery);
+                } else if (currentQuery instanceof GetTimesPlayedQuery) {
+                    cacheHit = server.searchCache((GetTimesPlayedQuery) currentQuery);
+                } else if (currentQuery instanceof GetTopArtistsByUserGenreQuery) {
+                    cacheHit = server.searchCache((GetTopArtistsByUserGenreQuery) currentQuery);
+                } else {
+                    cacheHit = server.searchCache((GetTopThreeMusicByUserQuery) currentQuery);
+                }
+            }
+
             // Run the query. This will populate the query result inside the query object
-            currentQuery.run(filename);
+            if (!cacheHit) {
+                currentQuery.run(filename);
+            }
 
             // Update the timestamp reflecting the event of finishing the query processing
             currentQuery.timeStamps[3] = System.currentTimeMillis();

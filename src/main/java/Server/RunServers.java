@@ -21,7 +21,7 @@ public class RunServers {
      * Method for initializing 5 server instances.
      * @param numServers: number of servers to be initialized.
      */
-    public void createServers(int numServers, int startPort) {
+    public void createServers(int numServers, int startPort, Boolean serverCaching) {
         System.out.println("Starting " + numServers + " servers ...");
 
         servers = new Server[numServers];
@@ -31,7 +31,7 @@ public class RunServers {
 
             // Start the 5 processing servers and bind them to the registry
             for (int i = 0; i < numServers; i++) {
-                servers[i] = new Server(registry, i, startPort + 2 + i);
+                servers[i] = new Server(registry, i, startPort + 2 + i, serverCaching);
             }
         } catch (Exception e) {
             System.out.println("Error: " + e);
@@ -43,13 +43,14 @@ public class RunServers {
 
     public static void main(String[] args) {
         int numServers = 5;
+        Boolean serverCaching = true;
 
         // ports: registry(startPort), proxy-server(startPort + 1), server0-4(startPort + 2 : startPort + 5), client(startPort + 6)
         // This variable must be identical in RunServers and RunClients
         int startPort = 3097;
 
         RunServers startServers = new RunServers();
-        startServers.createServers(numServers, startPort);
+        startServers.createServers(numServers, startPort, serverCaching);
         startServers.createProxyServer(numServers, startPort);
     }
 }
