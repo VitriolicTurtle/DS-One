@@ -49,7 +49,7 @@ public class ProxyServer extends Thread implements ProxyServerInterface{
             registry = LocateRegistry.getRegistry("localhost", port - 1);
 
             // Lookup the 5 processing servers
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < numServers; i++) {
                 servers[i] = (ServerInterface) registry.lookup("server_" + i);
             }
 
@@ -121,6 +121,7 @@ public class ProxyServer extends Thread implements ProxyServerInterface{
         // Before returning the server address, we update the server's assignment counter
         updateAssignmentCount(zone);
 
+        System.out.println("proxy-server assigned client server: 'server_" + selectedServer + "'.");
         return new ServerAddress("server_" + selectedServer);
     }
 }

@@ -17,16 +17,21 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Client implements ClientCallbackInterface, Serializable {
     private int clientNumber;
     private Registry registry = null;
-    private LinkedList<Query> responses = new LinkedList<>();
 
-    private int expectedResponses = 0;
+    private LinkedList<Query> responses = new LinkedList<>();
+    private int sentQueries = 0;
 
     private ProxyServerInterface proxyServer = null;
     private ServerInterface server = null;
+
+    // Used to make sure only one server can send back a response at a time
+    Lock lock = new ReentrantLock();
 
     /**
      * Constructor for client.
@@ -69,6 +74,8 @@ public class Client implements ClientCallbackInterface, Serializable {
      * @throws RemoteException
      */
     public void sendQueryResponse(Query response) throws RemoteException {
+        lock.lock();
+
         // Set the final event timestamp representing that the query has been returned to the client object
         response.timeStamps[4] = System.currentTimeMillis();
         responses.add(response);
@@ -77,11 +84,12 @@ public class Client implements ClientCallbackInterface, Serializable {
         System.out.println("Received responses: " + responses.size());
 
 
-//        expectedResponses--;
-    // Jank test.
-        if (responses.size() == expectedResponses) {
+        // expectedResponses--;
+        if (responses.size() == sentQueries) {
             writeToFile();
         }
+
+        lock.unlock();
     }
 
     /**
@@ -129,7 +137,9 @@ public class Client implements ClientCallbackInterface, Serializable {
             // Finally, set the timestamp for when the query is sent from the client, then send it to the server
             query.timeStamps[0] = System.currentTimeMillis();
             server.sendQuery(query);
-            expectedResponses++;
+
+            sentQueries++;
+            System.out.println("Client sent query. Number of sent queries: " + sentQueries);
         } catch (Exception e) {
             System.out.println("\nError:\n" + e);
             System.out.println("\nSomething went wrong when trying to send query from client_" + clientNumber + " to " + server + ".");
@@ -138,7 +148,7 @@ public class Client implements ClientCallbackInterface, Serializable {
     }
 
     private void writeToFile() {
-
+        System.out.println("Writing query responses to file ...");
         try {
             FileWriter writer = new FileWriter("src\\main\\java\\Client\\Outputs\\output_naive.txt");
 
@@ -151,7 +161,7 @@ public class Client implements ClientCallbackInterface, Serializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        System.out.println("All query responses have been written to file.");
     }
 
     /**

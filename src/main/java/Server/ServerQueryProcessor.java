@@ -40,7 +40,7 @@ public class ServerQueryProcessor implements Runnable {
         while (true) {
             currentQuery = this.server.fetchQuery();
 
-            // If no query object was returned, we continue waiting
+            // If no query object was returned, we continue waiting for the queue to fill
             if (currentQuery == null) { continue; }
 
             try {
@@ -62,6 +62,7 @@ public class ServerQueryProcessor implements Runnable {
             currentQuery.setProcessingServer(server.getServerZone());
 
             // Send the query (not populated with a response) back to the client
+            System.out.println("server_" + server.getServerZone() + "-processing thread finished processing query.");
             server.sendResponse(currentQuery);
         }
     }

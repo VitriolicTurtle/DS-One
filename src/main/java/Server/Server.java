@@ -94,6 +94,7 @@ public class Server implements ServerInterface {
     public void sendQuery(Query query) throws RemoteException {
         query.timeStamps[1] = System.currentTimeMillis();
         queue.add(query);
+        System.out.println("Query added to server_" + serverZone + " queue. Queue size: " + queue.size());
     }
 
     /**
@@ -106,6 +107,8 @@ public class Server implements ServerInterface {
      */
     public void sendResponse(Query query) {
         try {
+            System.out.println("server_" + serverZone + " sending query response to client.");
+
             // Use the registry to lookup the client that is being responded to
             ClientCallbackInterface client = (ClientCallbackInterface) registry.lookup("client_" + query.getClientNumber());
 
