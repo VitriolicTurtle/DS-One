@@ -9,18 +9,27 @@ import java.util.Map;
  * Class that gives the top 3 musicIDs a users has listened to based on the dataset.csv.
  */
 public class GetTopThreeMusicByUserQuery extends Query {
+    // Query arguments
     public String userID;
 
-    public GetTopThreeMusicByUserQuery(int clientZone, int clientNumber, long sendTime, String userID) {
-        super(clientZone, clientNumber, sendTime);
+    // Query results
+    public String[] result;
+
+    /**
+     * GetTopThreeMusicByUser query constructor. The client zone and number of the client sending the query,
+     * as well as the arguments for the query, are all determined upon creating the query object.
+     *
+     * @param clientZone: the zone of the client sending the query.
+     * @param clientNumber: the (address) number of the client sending the query.
+     * @param userID: the userID argument for the query.
+     */
+    public GetTopThreeMusicByUserQuery(int clientZone, int clientNumber, String userID) {
+        super(clientZone, clientNumber);
         this.userID = userID;
     }
 
-    /**
-     *
-     * @param filename
-     */
-    public GetTopThreeMusicByUserResponse run(String filename, int serverZone) {
+    @Override
+    public void run(String filename) {
         Scanner scanner = null;
         HashMap<String, Integer> playCounts = new HashMap<String, Integer>();
 
@@ -52,11 +61,16 @@ public class GetTopThreeMusicByUserQuery extends Query {
             topThreeMusic[i] = topEntry.getKey();
         }
 
-        return new GetTopThreeMusicByUserResponse(clientNumber, clientZone, serverZone, topThreeMusic);
+        result = topThreeMusic;
     }
 
     @Override
     public String toString() {
-        return "GetTopThreeMusicByUserQuery(" + userID + ") zone: " + clientZone;
+        String s = "Top 3 musics for user '" + userID + "' were [" + result[0] + ", " + result[1] + ", " + result[2] + "]. ";
+        s += "(Turnaround time: " + (timeStamps[4] - timeStamps[0]) + "ms, ";
+        s += "execution time: " + (timeStamps[3] - timeStamps[2]) + "ms, ";
+        s += "waiting time: " + (timeStamps[2] - timeStamps[1]) + "ms, ";
+        s += "processed by server: " + processingServer + ")";
+        return s;
     }
 }

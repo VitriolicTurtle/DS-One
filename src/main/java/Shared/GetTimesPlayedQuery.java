@@ -7,14 +7,27 @@ import java.util.Scanner;
  * Class that gives the number of times a musicID has been played in total based on the dataset.csv.
  */
 public class GetTimesPlayedQuery extends Query {
+    // Query arguments
     public String musicID;
 
-    public GetTimesPlayedQuery(int clientZone, int clientNumber, long sendTime, String musicID) {
-        super(clientZone, clientNumber, sendTime);
+    // Query results
+    public int result;
+
+    /**
+     * GetTimesPlayed query constructor. The client zone and number of the client sending the query,
+     * as well as the arguments for the query, are all determined upon creating the query object.
+     *
+     * @param clientZone: the zone of the client sending the query.
+     * @param clientNumber: the (address) number of the client sending the query.
+     * @param musicID: the musicID argument for the query.
+     */
+    public GetTimesPlayedQuery(int clientZone, int clientNumber, String musicID) {
+        super(clientZone, clientNumber);
         this.musicID = musicID;
     }
 
-    public GetTimesPlayedResponse run(String filename, int serverZone) {
+    @Override
+    public void run(String filename) {
         Scanner scanner = null;
         int counter = 0;
 
@@ -35,11 +48,16 @@ public class GetTimesPlayedQuery extends Query {
             counter += Integer.parseInt(data[data.length - 1]);
         }
 
-        return new GetTimesPlayedResponse(clientNumber, clientZone, serverZone, counter);
+        result = counter;
     }
 
     @Override
     public String toString() {
-        return "GetTimesPlayedQuery(" + musicID + ") clientZone: " + clientZone;
+        String s = "Music '" + musicID + "' was played " + result + " times. ";
+        s += "(Turnaround time: " + (timeStamps[4] - timeStamps[0]) + "ms, ";
+        s += "execution time: " + (timeStamps[3] - timeStamps[2]) + "ms, ";
+        s += "waiting time: " + (timeStamps[2] - timeStamps[1]) + "ms, ";
+        s += "processed by server: " + processingServer + ")";
+        return s;
     }
 }

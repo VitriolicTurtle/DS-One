@@ -7,16 +7,30 @@ import java.util.*;
  * Class that gives the top 3 artists a specific user ID has listened to based on genre provided based on dataset.csv.
  */
 public class GetTopArtistsByUserGenreQuery extends Query {
+    // Query arguments
     public String userID;
     public String genre;
 
-    public GetTopArtistsByUserGenreQuery(int clientZone, int clientNumber, long sendTime, String userID, String genre) {
-        super(clientZone, clientNumber, sendTime);
+    // Query results
+    public String[] result;
+
+    /**
+     * GetTopArtistsByUser query constructor. The client zone and number of the client sending the query,
+     * as well as the arguments for the query, are all determined upon creating the query object.
+     *
+     * @param clientZone: the zone of the client sending the query.
+     * @param clientNumber: the (address) number of the client sending the query.
+     * @param userID: the userID argument for the query.
+     * @param genre: the genre argument for the query.
+     */
+    public GetTopArtistsByUserGenreQuery(int clientZone, int clientNumber, String userID, String genre) {
+        super(clientZone, clientNumber);
         this.userID = userID;
         this.genre = genre;
     }
 
-    public GetTopArtistsByUserGenreResponse run(String filename, int serverZone) {
+    @Override
+    public void run(String filename) {
         Scanner scanner = null;
         HashMap<String, Integer> playCounts = new HashMap<String, Integer>();
 
@@ -57,11 +71,16 @@ public class GetTopArtistsByUserGenreQuery extends Query {
             topThreeArtists[i] = topEntry.getKey();
         }
 
-        return new GetTopArtistsByUserGenreResponse(clientNumber, clientZone, serverZone, topThreeArtists);
+        result = topThreeArtists;
     }
 
     @Override
     public String toString() {
-        return "GetTopArtistsByUserGenreQuery(" + userID + ", " + genre + ") clientZone: " + clientZone;
+        String s = "Top 3 artists for genre '" + genre + "' and user '" + userID + "' were [" + result[0] + ", " + result[1] + ", " + result[2] + "]. ";
+        s += "(Turnaround time: " + (timeStamps[4] - timeStamps[0]) + "ms, ";
+        s += "execution time: " + (timeStamps[3] - timeStamps[2]) + "ms, ";
+        s += "waiting time: " + (timeStamps[2] - timeStamps[1]) + "ms, ";
+        s += "processed by server: " + processingServer + ")";
+        return s;
     }
 }

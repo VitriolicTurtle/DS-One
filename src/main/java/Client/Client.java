@@ -10,11 +10,11 @@ import Shared.Query;
 import Shared.ServerAddress;
 
 import java.io.Serializable;
-import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-public class Client implements Remote, Serializable {
+public class Client implements ClientCallbackInterface, Serializable {
     private int clientNumber;
     private Registry registry = null;
 
@@ -53,58 +53,63 @@ public class Client implements Remote, Serializable {
     }
 
     /**
-     * @param queryString
-     * @param zone
+     * Remote method invoked by the server to respond to a query already sent out by the client.
+     *
+     * @param response: the query object populated with a response.
+     * @throws RemoteException
+     */
+    public void sendQueryResponse(Query response) throws RemoteException {
+        // Set the final event timestamp representing that the query has been returned to the client object
+        response.timeStamps[4] = System.currentTimeMillis();
+
+        System.out.println(response);
+    }
+
+    /**
+     * Get a server assignment from the proxy-server, parse the query and build a query object,
+     * then send the query object to the server assigned by the proxy-server.
+     *
+     * @param queryString: the query as a string.
+     * @param zone: the zone in which the client is sending the query from.
      */
     public void processQuery(String queryString, int zone) {
-        // Get a server address and port from the proxy server.
-        // proxyResponse.address and proxyResponse.port respectively
-        ServerAddress proxyResponse = getServerAssignment(zone);
-
-        // Lookup the server we have been referred to by the proxy-server
-        try {
-            server = (ServerInterface) registry.lookup(proxyResponse.address);
-        } catch (Exception e) {
-            System.out.println("\nError:\n" + e);
-            System.out.println("\nSomething went wrong when client_" + clientNumber + " tried to lookup " + proxyResponse.address + ".");
-            System.exit(1);
-        }
+        // Get a server assignment from the proxy-server
+        getServerAssignment(zone);
 
         // Parse the query
         String[] data = queryString.split("\\(");
         String method = data[0];
         String[] arguments = data[1].substring(0, data[1].length() - 1).split(",");
 
-        // Build the query object and send the query to the server
+        // Build the query object and send the query object to the server for processing
         try {
             Query query = null;
             switch (method) {
                 case "getTimesPlayed" -> {
                     assert (arguments.length == 1);
-                    query = new GetTimesPlayedQuery(zone, clientNumber, System.currentTimeMillis(), arguments[0]);
-                    server.sendQuery(query);
+                    query = new GetTimesPlayedQuery(zone, clientNumber, arguments[0]);
                 }
                 case "getTimesPlayedByUser" -> {
                     assert (arguments.length == 2);
-                    query = new GetTimesPlayedByUserQuery(zone, clientNumber, System.currentTimeMillis(), arguments[0], arguments[1]);
-                    server.sendQuery(query);
+                    query = new GetTimesPlayedByUserQuery(zone, clientNumber, arguments[0], arguments[1]);
                 }
                 case "getTopThreeMusicByUser" -> {
                     assert (arguments.length == 1);
-                    query = new GetTopThreeMusicByUserQuery(zone, clientNumber, System.currentTimeMillis(), arguments[0]);
-                    server.sendQuery(query);
+                    query = new GetTopThreeMusicByUserQuery(zone, clientNumber, arguments[0]);
                 }
                 case "getTopArtistsByUserGenre" -> {
                     assert (arguments.length == 2);
-                    query = new GetTopArtistsByUserGenreQuery(zone, clientNumber, System.currentTimeMillis(), arguments[0], arguments[1]);
-                    server.sendQuery(query);
+                    query = new GetTopArtistsByUserGenreQuery(zone, clientNumber, arguments[0], arguments[1]);
                 }
                 default -> {
-                    System.out.println("\nError:\n");
-                    System.out.println("Invalid remote method query: '" + method + "'.");
+                    System.out.println("\nError:\nInvalid remote method query: '" + method + "'.");
                     System.exit(1);
                 }
             }
+
+            // Finally, set the timestamp for when the query is sent from the client, then send it to the server
+            query.timeStamps[0] = System.currentTimeMillis();
+            server.sendQuery(query);
         } catch (Exception e) {
             System.out.println("\nError:\n" + e);
             System.out.println("\nSomething went wrong when trying to send query from client_" + clientNumber + " to " + server + ".");
@@ -113,20 +118,22 @@ public class Client implements Remote, Serializable {
     }
 
     /**
-     * Prompts the proxy-server to assign the client a server.
+     * Prompts the proxy-server to assign the client a server, then lookups the server address returned
+     * from the proxy-server.
      *
      * @param zone: the zone in which the client is in.
-     * @return ServerInfo which contains the address and port for the server assigned by the proxy-server.
      */
-    private ServerAddress getServerAssignment(int zone) {
-        ServerAddress response = null;
+    private void getServerAssignment(int zone) {
         try {
-            response = proxyServer.getServerAssignment(zone);
+            // Ask the proxy-server for a server address
+            ServerAddress response = proxyServer.getServerAssignment(zone);
+
+            // Lookup the returned server address
+            server = (ServerInterface) registry.lookup(response.address);
         } catch (Exception e) {
             System.out.println("\nError:\n" + e);
             System.out.println("\nSomething went wrong when trying to get server assignment in client_" + clientNumber + ".");
             System.exit(1);
         }
-        return response;
     }
 }

@@ -3,7 +3,7 @@ package Shared;
 import java.io.Serializable;
 
 public class ServerAddress implements Serializable {
-    public String address = null;
+    public String address;
 
     /**
      * Stores an address for a server.
