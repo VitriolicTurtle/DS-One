@@ -35,7 +35,7 @@ public class GetTimesPlayedByUserQuery extends Query {
     }
 
     @Override
-    public void run(String filename) {
+    public void run(String filename, Server server) {
         Scanner scanner = null;
         int counter = 0;
 
@@ -56,6 +56,8 @@ public class GetTimesPlayedByUserQuery extends Query {
             counter += Integer.parseInt(data[data.length - 1]);
         }
         result = counter;
+        // Create cache entry.
+        generateCacheEntry(tempGenre, tempArtists, counter, server);
     }
 
     /**

@@ -5,6 +5,8 @@ import java.util.Scanner;
 import java.util.HashMap;
 import java.util.Map;
 
+import Server.Server;
+
 /**
  * Class that gives the top 3 musicIDs a users has listened to based on the dataset.csv.
  */
@@ -29,7 +31,7 @@ public class GetTopThreeMusicByUserQuery extends Query {
     }
 
     @Override
-    public void run(String filename) {
+    public void run(String filename, Server server) {
         Scanner scanner = null;
         HashMap<String, Integer> playCounts = new HashMap<String, Integer>();
 
@@ -52,7 +54,7 @@ public class GetTopThreeMusicByUserQuery extends Query {
         }
 
         String[] topThreeMusic = new String[3];
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < Math.min(3, playCounts.size()); i++) {
             Map.Entry<String, Integer> topEntry = null;
             for (Map.Entry<String, Integer> entry : playCounts.entrySet()) {
                 topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ?  entry : topEntry;

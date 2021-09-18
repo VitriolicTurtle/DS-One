@@ -17,7 +17,6 @@ public class Server implements ServerInterface {
     private int port;
 
     private Boolean serverCaching;
-
     private LinkedList<UserProfile> cache = new LinkedList<>();
 
     ConcurrentLinkedQueue<Query> queue = new ConcurrentLinkedQueue<>();
@@ -128,9 +127,8 @@ public class Server implements ServerInterface {
             if (Objects.equals(userProfile.userID, userID)) {
                 profile = userProfile;
 
-                // Check that the cache can provide a full answer to the query. We have a cache miss if it cannot
-                hit = (profile.favoriteMusics.containsKey(genre) && profile.favoriteMusics.get(genre).size() >= 3);
-
+                // Check that the cache can provide an answer to the query. We have a cache miss if it cannot
+                hit = (profile.favoriteMusics.containsKey(genre));
                 break;
             }
         }
@@ -155,14 +153,15 @@ public class Server implements ServerInterface {
         }
 
         String[] topArtists = new String[3];
+        for (int i = 0; i < 3; i++)
+            topArtists[i] = "Q";
 
         // Find the top 3 artists from the artistPlayCount map
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < Math.min(3, artistPlayCounts.size()); i++) {
             Map.Entry<String, Integer> topEntry = null;
             for (Map.Entry<String, Integer> entry : artistPlayCounts.entrySet()) {
                 topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ? entry : topEntry;
             }
-            assert topEntry != null;
             artistPlayCounts.remove(topEntry.getKey());
             topArtists[i] = topEntry.getKey();
         }
@@ -205,9 +204,11 @@ public class Server implements ServerInterface {
         }
 
         String[] topMusic = new String[3];
+        for (int i = 0; i < 3; i++)
+            topMusic[i] = "Q";
 
-        // Find the top 3 artists from the artistPlayCount map
-        for (int i = 0; i < 3; i++) {
+        // Find the top 3 musics from the musicPlayCounts map
+        for (int i = 0; i < Math.min(3, musicPlayCounts.size()); i++) {
             Map.Entry<String, Integer> topEntry = null;
             for (Map.Entry<String, Integer> entry : musicPlayCounts.entrySet()) {
                 topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ? entry : topEntry;

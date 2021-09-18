@@ -2,6 +2,8 @@ package Shared;
 
 import java.io.Serializable;
 
+import Server.Server;
+
 public abstract class Query implements Serializable {
     // Which zone is the client sending the query in
     public int clientZone;
@@ -11,6 +13,9 @@ public abstract class Query implements Serializable {
 
     // Which server is processing the query
     public int processingServer;
+
+    // Variable to store the cache generated for this query
+    public UserProfile cache = null;
 
     /**
      * Used to store the following timestamps in the following indices
@@ -39,7 +44,7 @@ public abstract class Query implements Serializable {
     public int getClientNumber() { return this.clientNumber; }
     public int getProcessingServer() { return this.processingServer; }
 
-    public abstract void run(String filename);
+    public abstract void run(String filename, Server server);
 
     @Override
     public String toString() {

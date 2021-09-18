@@ -73,7 +73,7 @@ public class ServerQueryProcessor implements Runnable {
 
             // Run the query. This will populate the query result inside the query object
             if (!cacheHit) {
-                currentQuery.run(filename);
+                currentQuery.run(filename, server);
             }
 
             // Update the timestamp reflecting the event of finishing the query processing

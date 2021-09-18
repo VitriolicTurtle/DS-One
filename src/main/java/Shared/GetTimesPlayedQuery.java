@@ -3,6 +3,8 @@ package Shared;
 import java.io.File;
 import java.util.Scanner;
 
+import Server.Server;
+
 /**
  * Class that gives the number of times a musicID has been played in total based on the dataset.csv.
  */
@@ -27,7 +29,7 @@ public class GetTimesPlayedQuery extends Query {
     }
 
     @Override
-    public void run(String filename) {
+    public void run(String filename, Server server) {
         Scanner scanner = null;
         int counter = 0;
 

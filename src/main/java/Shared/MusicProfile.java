@@ -1,8 +1,9 @@
 package Shared;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class MusicProfile {
+public class MusicProfile implements Serializable {
     public String musicID;
     public ArrayList<String> artists;
 
