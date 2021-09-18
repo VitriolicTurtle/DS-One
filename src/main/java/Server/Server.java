@@ -223,8 +223,48 @@ public class Server implements ServerInterface {
     /**
      *
      */
-    public void addToCache(Query query) {
+    public void addToCache(UserProfile userProfile) {
+        UserProfile previous = null;
+        for (UserProfile cacheProfile : cache) {
+            if (cacheProfile.userID.equals(userProfile.userID)) {
+                previous = cacheProfile;
+                break;
+            }
+        }
 
+        // If we have no previous entry for this user in the cache
+        if (previous == null) {
+            if (cache.size() >= 100) { cache.remove(); }
+            cache.add(userProfile);
+            return;
+        }
+
+        // Otherwise we have found a previous userprofile entry in the cache for this user, so we merge their contents and
+        // move it to the back of the list (most recent)
+
+        // Remove the previous entry
+        cache.remove(previous);
+        
+        // Merge the previous and new entry
+        for (Map.Entry<String, HashMap<MusicProfile, Integer>> genreEntry : previous.favoriteMusics.entrySet()) {
+            // If data about the genre exists in both the previous and new entry, we merge the contents
+            if (userProfile.favoriteMusics.containsKey(genreEntry.getKey())) {
+                for (Map.Entry<MusicProfile, Integer> musicEntry : genreEntry.getValue().entrySet()) {
+                    if (userProfile.favoriteMusics.get(genreEntry.getKey()).containsKey(musicEntry.getKey())) {
+                        continue;
+                    } else {
+                        userProfile.favoriteMusics.get(genreEntry.getKey()).put(musicEntry.getKey(), musicEntry.getValue());
+                    }
+                }
+            }
+            // Otherwise we just add the extra genre data to the new entry so that it contains all the new and old data
+            else {
+                userProfile.favoriteMusics.put(genreEntry.getKey(), genreEntry.getValue());
+            }
+        }
+
+        // Finally, add the merged userprofile object to the end of the list (most recent)
+        cache.add(userProfile);
     }
 
     /**

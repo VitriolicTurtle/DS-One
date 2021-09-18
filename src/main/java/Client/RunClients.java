@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class RunClients {
     Client client;
-    String filename = "src/main/java/Client/Queries/queries_naive.txt";
+    String filename = "src/main/java/Client/Queries/cached_input.txt";
     Scanner scanner = null;
 
     /**

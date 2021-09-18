@@ -57,6 +57,7 @@ public class GetTopThreeMusicByUserQuery extends Query {
             for (Map.Entry<String, Integer> entry : playCounts.entrySet()) {
                 topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ?  entry : topEntry;
             }
+
             playCounts.remove(topEntry.getKey());
             topThreeMusic[i] = topEntry.getKey();
         }

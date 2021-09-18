@@ -47,7 +47,6 @@ public class GetTimesPlayedQuery extends Query {
             String[] data = line.split(",");
             counter += Integer.parseInt(data[data.length - 1]);
         }
-
         result = counter;
     }
 

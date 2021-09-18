@@ -1,6 +1,11 @@
 package Shared;
 
+import Server.Server;
+
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Scanner;
 
 /**
@@ -50,8 +55,28 @@ public class GetTimesPlayedByUserQuery extends Query {
             String[] data = line.split(",");
             counter += Integer.parseInt(data[data.length - 1]);
         }
-
         result = counter;
+    }
+
+    /**
+     *
+     * @param genre: Genre used to categorize the music entry in favouriteMusics.
+     * @param artists: List of artists to be added to the MusicProfile entry in cache.
+     * @param timesPlayed: Times the user has played the song.
+     * @param server: Instance of server.
+     */
+    private void generateCacheEntry(String genre, ArrayList<String> artists, int timesPlayed, Server server){
+        HashMap<MusicProfile, Integer> musicEntry = new HashMap<>();
+        MusicProfile tempMusicProfile = new MusicProfile(musicID,artists);
+        musicEntry.put(tempMusicProfile, timesPlayed);
+
+        // Make temporary user profile
+        UserProfile tempUserProfile = new UserProfile(userID);
+        tempUserProfile.favoriteMusics.put(genre, musicEntry);
+
+        // Return cache entry;
+        server.addToCache(tempUserProfile);
+        this.cache = tempUserProfile;
     }
 
     @Override

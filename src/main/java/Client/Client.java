@@ -2,12 +2,7 @@ package Client;
 
 import Server.ProxyServerInterface;
 import Server.ServerInterface;
-import Shared.GetTimesPlayedQuery;
-import Shared.GetTimesPlayedByUserQuery;
-import Shared.GetTopThreeMusicByUserQuery;
-import Shared.GetTopArtistsByUserGenreQuery;
-import Shared.Query;
-import Shared.ServerAddress;
+import Shared.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -26,6 +21,7 @@ public class Client implements ClientCallbackInterface, Serializable {
 
     private LinkedList<Query> responses = new LinkedList<>();
     private int sentQueries = 0;
+    private LinkedList<UserProfile> cache = new LinkedList<>();
 
     private ProxyServerInterface proxyServer = null;
     private ServerInterface server = null;
@@ -78,6 +74,7 @@ public class Client implements ClientCallbackInterface, Serializable {
 
         // Set the final event timestamp representing that the query has been returned to the client object
         response.timeStamps[4] = System.currentTimeMillis();
+        addToCache(response);
         responses.add(response);
 
         System.out.println("Client received query response.");
@@ -137,6 +134,11 @@ public class Client implements ClientCallbackInterface, Serializable {
             // Finally, set the timestamp for when the query is sent from the client, then send it to the server
             query.timeStamps[0] = System.currentTimeMillis();
             server.sendQuery(query);
+//            if (!searchCache(query)){
+//
+//            }else{
+//                getFromCache(query);
+//            }
 
             sentQueries++;
             System.out.println("Client sent query. Number of sent queries: " + sentQueries);
@@ -147,7 +149,39 @@ public class Client implements ClientCallbackInterface, Serializable {
         }
     }
 
-    private void writeToFile() {
+    /**
+     *
+     */
+    private void addToCache(Query response){
+
+    }
+
+    /**
+     *
+     */
+    private boolean searchCache(Query query){
+        boolean hit = false;
+
+
+        return true;
+    }
+
+    /**
+     *
+     */
+    private void getFromCache(Query query){
+        if (query instanceof GetTimesPlayedByUserQuery) {
+
+        } else if (query instanceof GetTimesPlayedQuery) {
+
+        } else if (query instanceof GetTopArtistsByUserGenreQuery) {
+
+        } else if (query instanceof GetTopThreeMusicByUserQuery) {
+
+        }
+    }
+
+    private void conclude() {
         System.out.println("Writing query responses to file ...");
         try {
             FileWriter writer = new FileWriter("src\\main\\java\\Client\\Outputs\\output_naive.txt");
