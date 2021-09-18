@@ -46,6 +46,10 @@ public class GetTopArtistsByUserGenreQuery extends Query {
             System.exit(1);
         }
 
+        ArrayList<String> musicIDs = new ArrayList<>();
+        ArrayList<Integer> timesPlayed = new ArrayList<>();
+        HashMap<String, ArrayList<String>> artists = new HashMap<>();
+
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             if (!line.contains(userID) || !line.contains(genre)) { continue; }
@@ -63,6 +67,9 @@ public class GetTopArtistsByUserGenreQuery extends Query {
                     playCounts.put(data[i], 1);
                 }
             }
+            // Add info to cache:
+            musicIDs.add(data[0]);
+
         }
 
         String[] topThreeArtists = new String[3];
@@ -74,9 +81,33 @@ public class GetTopArtistsByUserGenreQuery extends Query {
             playCounts.remove(topEntry.getKey());
             topThreeArtists[i] = topEntry.getKey();
         }
+        System.err.println(topThreeArtists[0]);
 
         result = topThreeArtists;
     }
+
+
+    private void generateCacheEntry(ArrayList<String> musicIDs, ArrayList<Integer> timesPlayed, HashMap<String, ArrayList<String>> artists, Server server){
+
+        // Temp hashmap needed for users favouriteMusics, will consist of top music played for the genre based on GetTopArtistsByUserGenreQuery.
+        HashMap<MusicProfile, Integer> tempMusicProfiles = new HashMap<>();
+        // Temp user profile to be returned to cache
+        UserProfile tempUserProfile = new UserProfile(userID);
+        // For each musicID found
+        for(int i = 0; i < musicIDs.size(); i++){
+            // Create new music profile with relevant musicID and artists.
+            MusicProfile tempMusicProfile = new MusicProfile(musicIDs.get(i), artists.get(i));
+            // Add hashmap entry of the musicProfile with amount of times played.
+            tempMusicProfiles.put(tempMusicProfile, timesPlayed.get(i));
+        }
+        // For queried genre: add top 3 music played.
+        tempUserProfile.favoriteMusics.put(genre, tempMusicProfiles);
+        // Return cache entry.
+        server.addToCache(tempUserProfile);
+
+    }
+
+
 
     @Override
     public String toString() {
@@ -84,7 +115,7 @@ public class GetTopArtistsByUserGenreQuery extends Query {
         s += "(Turnaround time: " + (timeStamps[4] - timeStamps[0]) + "ms, ";
         s += "execution time: " + (timeStamps[3] - timeStamps[2]) + "ms, ";
         s += "waiting time: " + (timeStamps[2] - timeStamps[1]) + "ms, ";
-        s += "processed by server: " + processingServer + ")";
+s += "processed by server: " + processingServer + ")";
         return s;
     }
 }

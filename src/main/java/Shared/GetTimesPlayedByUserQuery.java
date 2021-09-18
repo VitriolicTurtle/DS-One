@@ -47,6 +47,10 @@ public class GetTimesPlayedByUserQuery extends Query {
             System.exit(1);
         }
 
+        String tempGenre = "";
+        ArrayList<String> tempArtists = new ArrayList<>();
+        int tempTimesPlayed = 0;
+
         //  Scan trough entire dataset and count amount of times listened to song by userID.
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
@@ -54,6 +58,10 @@ public class GetTimesPlayedByUserQuery extends Query {
 
             String[] data = line.split(",");
             counter += Integer.parseInt(data[data.length - 1]);
+
+            // Get additional info needed for cache entry.
+            tempGenre = data[data.length - 3];
+            tempArtists.addAll(Arrays.asList(data).subList(1, data.length - 3));
         }
         result = counter;
         // Create cache entry.
