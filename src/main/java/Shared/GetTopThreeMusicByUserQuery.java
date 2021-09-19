@@ -21,9 +21,9 @@ public class GetTopThreeMusicByUserQuery extends Query {
      * GetTopThreeMusicByUser query constructor. The client zone and number of the client sending the query,
      * as well as the arguments for the query, are all determined upon creating the query object.
      *
-     * @param clientZone: the zone of the client sending the query.
+     * @param clientZone:   the zone of the client sending the query.
      * @param clientNumber: the (address) number of the client sending the query.
-     * @param userID: the userID argument for the query.
+     * @param userID:       the userID argument for the query.
      */
     public GetTopThreeMusicByUserQuery(int clientZone, int clientNumber, String userID) {
         super(clientZone, clientNumber);
@@ -57,7 +57,7 @@ public class GetTopThreeMusicByUserQuery extends Query {
         for (int i = 0; i < Math.min(3, playCounts.size()); i++) {
             Map.Entry<String, Integer> topEntry = null;
             for (Map.Entry<String, Integer> entry : playCounts.entrySet()) {
-                topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ?  entry : topEntry;
+                topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ? entry : topEntry;
             }
 
             playCounts.remove(topEntry.getKey());

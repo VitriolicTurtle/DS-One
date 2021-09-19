@@ -59,6 +59,8 @@ public class Server implements ServerInterface {
 
     /**
      *
+     * @param query
+     * @return
      */
     public boolean searchCache(GetTimesPlayedByUserQuery query) {
         // Find user profile object in list
@@ -89,6 +91,8 @@ public class Server implements ServerInterface {
 
     /**
      *
+     * @param query
+     * @return
      */
     public boolean searchCache(GetTimesPlayedQuery query) {
         int cachedResult = 0;
@@ -115,6 +119,8 @@ public class Server implements ServerInterface {
 
     /**
      *
+     * @param query
+     * @return
      */
     public boolean searchCache(GetTopArtistsByUserGenreQuery query) {
         String userID = query.userID;
@@ -138,7 +144,7 @@ public class Server implements ServerInterface {
         HashMap<String, Integer> artistPlayCounts = new HashMap<>();
 
         for (Map.Entry<String, HashMap<MusicProfile, Integer>> genreEntry : profile.favoriteMusics.entrySet()) {
-            if (genreEntry.getKey() != genre) { continue; }
+            if (!Objects.equals(genreEntry.getKey(), genre)) { continue; }
             for (Map.Entry<MusicProfile, Integer> entry : genreEntry.getValue().entrySet()) {
                 int plays = entry.getValue();
                 ArrayList<String> artists = entry.getKey().artists;
@@ -172,6 +178,8 @@ public class Server implements ServerInterface {
 
     /**
      *
+     * @param query
+     * @return
      */
     public boolean searchCache(GetTopThreeMusicByUserQuery query) {
         String userID = query.userID;
@@ -223,6 +231,7 @@ public class Server implements ServerInterface {
 
     /**
      *
+     * @param userProfile
      */
     public void addToCache(UserProfile userProfile) {
         UserProfile previous = null;
