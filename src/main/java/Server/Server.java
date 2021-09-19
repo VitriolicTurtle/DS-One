@@ -203,6 +203,7 @@ public class Server implements ServerInterface {
 
         for (Map.Entry<String, HashMap<MusicProfile, Integer>> genreEntry : profile.favoriteMusics.entrySet()) {
             for (Map.Entry<MusicProfile, Integer> entry : genreEntry.getValue().entrySet()) {
+
                 int plays = entry.getValue();
                 String music = entry.getKey().musicID;
                 if (musicPlayCounts.containsKey(music)) {

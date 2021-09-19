@@ -50,11 +50,16 @@ public class GetTopArtistsByUserGenreQuery extends Query {
             System.exit(1);
         }
 
-        ArrayList<String> musicIDs = new ArrayList<>();
-        ArrayList<Integer> timesPlayed = new ArrayList<>();
+        // Hashmaps needed for making cache entry.
+        HashMap<String, Integer> musicCounts = new HashMap<>();
         HashMap<String, ArrayList<String>> artists = new HashMap<>();
 
+        //ArrayList<String> musicIDs = new ArrayList<>();
+        //ArrayList<Integer> timesPlayed = new ArrayList<>();
+
         while (scanner.hasNextLine()) {
+            ArrayList<String> tempArtistList = new ArrayList<>();
+
             String line = scanner.nextLine();
             if (!line.contains(userID) || !line.contains(genre)) {
                 continue;
@@ -76,9 +81,11 @@ public class GetTopArtistsByUserGenreQuery extends Query {
                     playCounts.put(data[i], Integer.parseInt(data[data.length - 1]));
                 }
             }
-            // Add info to cache:
-            musicIDs.add(data[0]);
+            artists.put(data[0], tempArtistList);
 
+            // Add info to cache:
+            int timesPlayed = Integer.parseInt(data[data.length - 1]);
+            musicCounts.put(data[0], (musicCounts.containsKey(data[0]) ? musicCounts.get(data[0]) + timesPlayed : timesPlayed));
         }
 
         String[] topThreeArtists = new String[3];
@@ -92,6 +99,8 @@ public class GetTopArtistsByUserGenreQuery extends Query {
         }
 
         result = topThreeArtists;
+        // Create cache entry.
+        generateCacheEntry(musicCounts, artists, server);
     }
 
     /**
