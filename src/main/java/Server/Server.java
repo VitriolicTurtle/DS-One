@@ -81,7 +81,6 @@ public class Server implements ServerInterface {
             }
             if(cachedResult >= 0) {
                 query.result = cachedResult;
-                //System.err.println("CACHED " + cachedResult);
                 return true;
             }
         }
@@ -101,6 +100,7 @@ public class Server implements ServerInterface {
                 // For each favouriteMusics object value (songs in hashmap by genre key).
                 for(Map.Entry<MusicProfile, Integer> songEntry: genreEntry.getValue().entrySet()){
                     // Check if the musicID is present.
+                    System.err.println(songEntry.getKey().musicID);
                     if(songEntry.getKey().musicID.equals(query.musicID)){
                         cachedResult += songEntry.getValue();
                     }
@@ -160,7 +160,7 @@ public class Server implements ServerInterface {
 
         String[] topArtists = new String[3];
         for (int i = 0; i < 3; i++)
-            topArtists[i] = "Q";
+            topArtists[i] = "-";
 
         // Find the top 3 artists from the artistPlayCount map
         for (int i = 0; i < Math.min(3, artistPlayCounts.size()); i++) {
@@ -195,6 +195,8 @@ public class Server implements ServerInterface {
             }
         }
         if (!hit) { return false; }
+
+        System.out.println(profile);
 
         // Find the query result from the cache
         HashMap<String, Integer> musicPlayCounts = new HashMap<>();
@@ -254,7 +256,10 @@ public class Server implements ServerInterface {
 
         // Remove the previous entry
         cache.remove(previous);
-        
+
+        //System.err.println(previous);
+        //System.err.println(userProfile);
+
         // Merge the previous and new entry
         for (Map.Entry<String, HashMap<MusicProfile, Integer>> genreEntry : previous.favoriteMusics.entrySet()) {
             // If data about the genre exists in both the previous and new entry, we merge the contents
@@ -275,6 +280,7 @@ public class Server implements ServerInterface {
 
         // Finally, add the merged userprofile object to the end of the list (most recent)
         cache.add(userProfile);
+        //System.err.println(userProfile);
     }
 
     /**

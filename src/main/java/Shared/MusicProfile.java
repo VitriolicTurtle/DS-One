@@ -11,4 +11,14 @@ public class MusicProfile implements Serializable {
         this.musicID = musicID;
         this.artists = artists;
     }
+
+    @Override
+    public String toString() {
+        String s = "[musicID=" + musicID + ", artists=( ";
+        for (String artist : artists) {
+            s += artist + " ";
+        }
+        s += ")]";
+        return s;
+    }
 }

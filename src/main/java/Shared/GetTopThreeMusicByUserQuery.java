@@ -54,14 +54,18 @@ public class GetTopThreeMusicByUserQuery extends Query {
         }
 
         String[] topThreeMusic = new String[3];
+        for (int i = 0; i < 3; i++)
+            topThreeMusic[i] = "-";
+
+        HashMap<String, Integer> topThreePlayedMusic = new HashMap<>();
         for (int i = 0; i < Math.min(3, playCounts.size()); i++) {
             Map.Entry<String, Integer> topEntry = null;
             for (Map.Entry<String, Integer> entry : playCounts.entrySet()) {
                 topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ? entry : topEntry;
             }
-
             playCounts.remove(topEntry.getKey());
             topThreeMusic[i] = topEntry.getKey();
+            topThreePlayedMusic.put(topEntry.getKey(), topEntry.getValue());
         }
 
         result = topThreeMusic;

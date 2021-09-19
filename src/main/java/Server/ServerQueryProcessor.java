@@ -66,7 +66,7 @@ public class ServerQueryProcessor implements Runnable {
 //                    cacheHit = server.searchCache((GetTimesPlayedQuery) currentQuery);
                 if (currentQuery instanceof GetTopArtistsByUserGenreQuery) {
                     cacheHit = server.searchCache((GetTopArtistsByUserGenreQuery) currentQuery);
-                } else {
+                } else if (currentQuery instanceof  GetTopThreeMusicByUserQuery) {
                     cacheHit = server.searchCache((GetTopThreeMusicByUserQuery) currentQuery);
                 }
             }

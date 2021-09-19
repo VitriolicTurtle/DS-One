@@ -39,7 +39,6 @@ public class GetTopArtistsByUserGenreQuery extends Query {
      */
     @Override
     public void run(String filename, Server server) {
-
         Scanner scanner = null;
         HashMap<String, Integer> playCounts = new HashMap<String, Integer>();
 
@@ -70,11 +69,11 @@ public class GetTopArtistsByUserGenreQuery extends Query {
                 }
                 tempArtistList.add(data[i]);
 
-                // Update the play count for the artist found
+                // Update the play count for the artist fou
                 if (playCounts.containsKey(data[i])) {
-                    playCounts.put(data[i], playCounts.get(data[i]) + 1);
+                    playCounts.put(data[i], playCounts.get(data[i]) + Integer.parseInt(data[data.length - 1]));
                 } else {
-                    playCounts.put(data[i], 1);
+                    playCounts.put(data[i], Integer.parseInt(data[data.length - 1]));
                 }
             }
             // Add info to cache:
@@ -91,7 +90,6 @@ public class GetTopArtistsByUserGenreQuery extends Query {
             playCounts.remove(topEntry.getKey());
             topThreeArtists[i] = topEntry.getKey();
         }
-        System.err.println(topThreeArtists[0]);
 
         result = topThreeArtists;
     }
