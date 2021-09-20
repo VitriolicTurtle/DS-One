@@ -80,6 +80,9 @@ public class GetTopThreeMusicByUserQuery extends Query {
             for (Map.Entry<MusicProfile, Integer> entry : playCounts.entrySet()) {
                 topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ? entry : topEntry;
             }
+            if (topEntry == null)
+                break;
+
             playCounts.remove(topEntry.getKey());
 
             topThreeProfiles[i] = topEntry.getKey();

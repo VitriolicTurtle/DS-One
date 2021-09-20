@@ -18,8 +18,13 @@ public class Server implements ServerInterface {
 
     private Boolean serverCaching;
 
-    private LinkedList<UserProfile> userCache = new LinkedList<>();
-    private LinkedHashMap<MusicProfile, Integer> musicCache = new LinkedHashMap<>(100);
+    private LinkedList<Integer> musicProfileTracker = new LinkedList<>();
+    private LinkedList<Integer> userProfileTracker = new LinkedList<>();
+
+    private LinkedHashMap<MusicProfile, Integer> getTimesPlayedCache = new LinkedHashMap<>();
+    private LinkedList<UserProfile> getTimesPlayedByUserCache = new LinkedList<>();
+    private LinkedList<UserProfile> getTopThreeMusicByUserCache = new LinkedList<>();
+    private LinkedList<UserProfile> getTopArtistsByUserGenre = new LinkedList<>();
 
     ConcurrentLinkedQueue<Query> queue = new ConcurrentLinkedQueue<>();
 
@@ -68,7 +73,7 @@ public class Server implements ServerInterface {
         UserProfile userProfile = null;
 
         // Check if the cache contains a UserProfile object for the user
-        for (UserProfile user : userCache) {
+        for (UserProfile user : getTimesPlayedByUserCache) {
             if (query.userID.equals(user.userID)) {
                 userProfile = user;
             }
@@ -114,7 +119,7 @@ public class Server implements ServerInterface {
      * @return
      */
     public boolean cache(GetTimesPlayedQuery query) {
-        for (Map.Entry<MusicProfile, Integer> musicEntry : musicCache.entrySet()) {
+        for (Map.Entry<MusicProfile, Integer> musicEntry : getTimesPlayedCache.entrySet()) {
             // If we have a cache hit
             if (musicEntry.getKey().musicID.equals(query.musicID)) {
                 query.result = musicEntry.getValue();
@@ -134,7 +139,7 @@ public class Server implements ServerInterface {
         UserProfile userProfile = null;
 
         // Search the cache for a user profile for the current user
-        for (UserProfile user : userCache) {
+        for (UserProfile user : getTopThreeMusicByUserCache) {
             if (query.userID.equals(user.userID)) {
                 userProfile = user;
             }
@@ -154,10 +159,13 @@ public class Server implements ServerInterface {
         }
 
         // Find the top 3 most played music entries
-        for (int i = 0; i < Math.min(3, playCounts.size()); i++) {
+        for (int i = 0; i < 3; i++) {
             Map.Entry<MusicProfile, Integer> topEntry = null;
             for (Map.Entry<MusicProfile, Integer> entry : playCounts.entrySet()) {
                 topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ? entry : topEntry;
+            }
+            if (topEntry == null) {
+                break;
             }
             playCounts.remove(topEntry.getKey());
 
@@ -178,7 +186,7 @@ public class Server implements ServerInterface {
         UserProfile userProfile = null;
 
         // Search the cache for a user profile for the current user
-        for (UserProfile user : userCache) {
+        for (UserProfile user : getTopArtistsByUserGenre) {
             if (query.userID.equals(user.userID)) {
                 userProfile = user;
             }
@@ -254,6 +262,7 @@ public class Server implements ServerInterface {
         }
 
         // Add the music profile and its play count to the mapping value for the music's genre
+        musicProfileTracker.add(1);
         userProfile.favoriteMusics.get(genre).put(musicProfile, plays);
 
         userProfileTracker.add(1);
@@ -263,17 +272,12 @@ public class Server implements ServerInterface {
     public void cacheGetTimesPlayed(String musicID, ArrayList<String> artists, int plays) {
         MusicProfile musicProfile = new MusicProfile(musicID, artists);
 
-        if (musicCache.containsKey(musicProfile)) {
-            // If the music profile is cached already, we remove it and re-add the new one to move it to the front
-            // (most recent)
-            musicCache.remove(musicProfile);
-        } else if (musicCache.size() >= 100) {
-            // If the cache is at max capacity we remove the oldest entry
-            musicCache.remove(musicCache.entrySet().iterator().next().getKey());
+        if (getTimesPlayedCache.containsKey(musicProfile)) {
+            getTimesPlayedCache.remove(musicProfile);
         }
 
         // Add the new entry to the cache
-        musicCache.put(musicProfile, plays);
+        getTimesPlayedCache.put(musicProfile, plays);
     }
 
     public void cacheGetTopThreeMusicByUser(
@@ -370,6 +374,7 @@ public class Server implements ServerInterface {
             userProfile.favoriteMusics.get(genre).put(topThreeProfiles[i], topThreePlayCounts[i]);
         }
 
+        System.err.println(userProfile);
         // If the user cache is at max capacity, we remove the oldest entry
         if (getTopArtistsByUserGenre.size() >= 100)
             getTopArtistsByUserGenre.remove();
