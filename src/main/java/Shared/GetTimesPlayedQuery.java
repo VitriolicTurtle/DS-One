@@ -16,6 +16,9 @@ public class GetTimesPlayedQuery extends Query {
     // Query results
     public int result;
 
+    // Cache variables
+    public ArrayList<String> artists;
+
     /**
      * GetTimesPlayed query constructor. The client zone and number of the client sending the query,
      * as well as the arguments for the query, are all determined upon creating the query object.
@@ -32,7 +35,7 @@ public class GetTimesPlayedQuery extends Query {
     @Override
     public void run(String filename, Server server) {
         int counter = 0;
-        ArrayList<String> artists = new ArrayList<>();
+        artists = new ArrayList<>();
         boolean foundArtists = false;
 
         Scanner scanner = null;
@@ -64,6 +67,8 @@ public class GetTimesPlayedQuery extends Query {
 
         // Cache the query result
         server.cacheGetTimesPlayed(musicID, artists, result);
+
+        containsCacheData = true;
     }
 
     @Override

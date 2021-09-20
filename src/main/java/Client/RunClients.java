@@ -13,7 +13,7 @@ public class RunClients {
     /**
      * Sends Queries to servers.
      */
-    public void sendQuery() {
+    public void sendQueries() {
         while (scanner.hasNextLine()) {
             if (ClientCache) {
                 if ((count % 10) == 0) {
@@ -34,16 +34,18 @@ public class RunClients {
 
             client.processQuery(query, zone - 1);
         }
+
+        client.finished(count);
     }
 
     /**
      * Method for creating a client.
      */
-    public void runClient(int startPort) {
+    public void runClient(int startPort, boolean clientCache) {
         System.out.println("Starting client");
 
         // Create client object
-        client = new Client(0, startPort + 7);
+        client = new Client(0, startPort + 7, clientCache);
 
         // Create scanner object
         try {
@@ -65,8 +67,10 @@ public class RunClients {
         // This variable must be identical in RunServers and RunClients
         int startPort = 3197;
 
+        boolean clientCache = true;
+
         RunClients client = new RunClients();
-        client.runClient(startPort);
-        client.sendQuery();
+        client.runClient(startPort, clientCache);
+        client.sendQueries();
     }
 }

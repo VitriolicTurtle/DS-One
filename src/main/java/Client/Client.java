@@ -53,7 +53,7 @@ public class Client implements ClientCallbackInterface, Serializable {
      *
      * @param clientNumber: unique ID for the client.
      */
-    public Client(int clientNumber, int port) {
+    public Client(int clientNumber, int port, boolean clientCache) {
         this.clientNumber = clientNumber;
         startClient(port);
     }
@@ -82,6 +82,10 @@ public class Client implements ClientCallbackInterface, Serializable {
         System.out.println("client_" + clientNumber + " has started successfully.");
     }
 
+    public void finished(int count) {
+        finishedCount = count;
+    }
+
     /**
      * Remote method invoked by the server to respond to a query already sent out by the client.
      *
@@ -91,19 +95,52 @@ public class Client implements ClientCallbackInterface, Serializable {
     public void sendQueryResponse(Query response) throws RemoteException {
         lock.lock();
 
-        // Set the final event timestamp representing that the query has been returned to the client object
-        response.timeStamps[4] = System.currentTimeMillis();
-        addToCache(response);
-        responses.add(response);
-
         System.out.println("Client received query response.");
         System.out.println("Received responses: " + responses.size());
-
-        if (responses.size() == sentQueries) {
-            conclude();
-        }
+        acceptResponse(response);
 
         lock.unlock();
+    }
+
+    private void acceptResponse(Query response) {
+        responses.add(response);
+
+        // Set the final event timestamp representing that the query has been returned to the client object
+        response.timeStamps[4] = System.currentTimeMillis();
+
+        if (response.containsCacheData) {
+            System.out.println("Caching response data in client.");
+
+            if (response instanceof GetTimesPlayedByUserQuery) {
+                cacheGetTimesPlayedByUser(
+                        ((GetTimesPlayedByUserQuery) response).userID,
+                        ((GetTimesPlayedByUserQuery) response).musicID,
+                        ((GetTimesPlayedByUserQuery) response).genre,
+                        ((GetTimesPlayedByUserQuery) response).artists,
+                        ((GetTimesPlayedByUserQuery) response).result);
+            } else if (response instanceof GetTimesPlayedQuery) {
+                cacheGetTimesPlayed(
+                        ((GetTimesPlayedQuery) response).musicID,
+                        ((GetTimesPlayedQuery) response).artists,
+                        ((GetTimesPlayedQuery) response).result);
+            } else if (response instanceof GetTopArtistsByUserGenreQuery) {
+                cacheGetTopArtistsByUserGenre(
+                        ((GetTopArtistsByUserGenreQuery) response).userID,
+                        ((GetTopArtistsByUserGenreQuery) response).genre,
+                        ((GetTopArtistsByUserGenreQuery) response).topThreeProfiles,
+                        ((GetTopArtistsByUserGenreQuery) response).topThreePlayCounts);
+            } else if (response instanceof GetTopThreeMusicByUserQuery) {
+                cacheGetTopThreeMusicByUser(
+                        ((GetTopThreeMusicByUserQuery) response).userID,
+                        ((GetTopThreeMusicByUserQuery) response).topThreeProfiles,
+                        ((GetTopThreeMusicByUserQuery) response).topThreePlayCounts,
+                        ((GetTopThreeMusicByUserQuery) response).topThreeGenres);
+            }
+        }
+
+        if (finishedCount != -1 && responses.size() == finishedCount) {
+            conclude();
+        }
     }
 
     /**
@@ -147,11 +184,31 @@ public class Client implements ClientCallbackInterface, Serializable {
                     System.exit(1);
                 }
             }
+            boolean cacheHit = false;
+            if (clientCache) {
+                if (query instanceof GetTimesPlayedByUserQuery) {
+                    cacheHit = cache((GetTimesPlayedByUserQuery) query);
+                } else if (query instanceof GetTimesPlayedQuery) {
+                    cacheHit = cache((GetTimesPlayedQuery) query);
+                } else if (query instanceof GetTopArtistsByUserGenreQuery) {
+                    cacheHit = cache((GetTopArtistsByUserGenreQuery) query);
+                } else if (query instanceof GetTopThreeMusicByUserQuery) {
+                    cacheHit = cache((GetTopThreeMusicByUserQuery) query);
+                }
+            }
 
-            // Finally, set the timestamp for when the query is sent from the client, then send it to the server
-            query.timeStamps[0] = System.currentTimeMillis();
-            server.sendQuery(query);
+            if (cacheHit) {
+                for (int i = 0; i < 5; i++)
+                    query.timeStamps[i] = System.currentTimeMillis();
+
+                acceptResponse(query);
+            } else {
+                // Finally, set the timestamp for when the query is sent from the client, then send it to the server
+                query.timeStamps[0] = System.currentTimeMillis();
+                server.sendQuery(query);
+            }
             sentQueries++;
+
             System.out.println("Client sent query. Number of sent queries: " + sentQueries);
         } catch (Exception e) {
             System.out.println("\nError:\n" + e);

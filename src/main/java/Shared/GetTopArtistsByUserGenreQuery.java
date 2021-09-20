@@ -17,6 +17,10 @@ public class GetTopArtistsByUserGenreQuery extends Query {
     // Query results
     public String[] result;
 
+    // Cache variables
+    public MusicProfile[] topThreeProfiles;
+    public int[] topThreePlayCounts;
+
     /**
      * GetTopArtistsByUser query constructor. The client zone and number of the client sending the query,
      * as well as the arguments for the query, are all determined upon creating the query object.
@@ -79,8 +83,8 @@ public class GetTopArtistsByUserGenreQuery extends Query {
         }
 
         // Find the top three music profiles (based off of play counts)
-        MusicProfile[] topThreeProfiles = new MusicProfile[3];
-        int[] topThreePlayCounts = new int[3];
+        topThreeProfiles = new MusicProfile[3];
+        topThreePlayCounts = new int[3];
 
         for (int i = 0; i < 3; i++) {
             Map.Entry<MusicProfile, Integer> topEntry = null;
@@ -113,6 +117,8 @@ public class GetTopArtistsByUserGenreQuery extends Query {
 
         // Cache the query result
         server.cacheGetTopArtistsByUserGenre(userID, genre, topThreeProfiles, topThreePlayCounts);
+
+        containsCacheData = true;
     }
 
     @Override
