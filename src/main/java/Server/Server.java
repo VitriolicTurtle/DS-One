@@ -195,10 +195,13 @@ public class Server implements ServerInterface {
         int resultIdx = 0;
 
         // Find the most played music profiles in the cache for this genre and user, in order from most played to least
-        for (int i = 0; i < Math.min(3, musicMap.size()); i++) {
+        for (int i = 0; i < 3; i++) {
             Map.Entry<MusicProfile, Integer> topEntry = null;
             for (Map.Entry<MusicProfile, Integer> entry : musicMap.entrySet()) {
                 topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ? entry : topEntry;
+            }
+            if(topEntry == null){
+                break;
             }
             musicMap.remove(topEntry.getKey());
 
@@ -222,13 +225,13 @@ public class Server implements ServerInterface {
         UserProfile userProfile = null;
 
         // Check whether the user has a user profile in the cache already
-        for (UserProfile user : userCache) {
+        for (UserProfile user : getTimesPlayedByUserCache) {
             if (user.userID.equals(userID)) {
                 userProfile = user;
 
                 // We also remove the user profile found from the cache since it will be re-added into the
                 // most recent position
-                userCache.remove(userProfile);
+                getTimesPlayedByUserCache.remove(userProfile);
                 break;
             }
         }
@@ -253,11 +256,8 @@ public class Server implements ServerInterface {
         // Add the music profile and its play count to the mapping value for the music's genre
         userProfile.favoriteMusics.get(genre).put(musicProfile, plays);
 
-        // If the userCache is at max capacity, we remove the oldest entry
-        if (userCache.size() >= 100)
-            userCache.remove();
-
-        userCache.add(userProfile);
+        userProfileTracker.add(1);
+        getTimesPlayedByUserCache.add(userProfile);
     }
 
     public void cacheGetTimesPlayed(String musicID, ArrayList<String> artists, int plays) {
@@ -333,13 +333,13 @@ public class Server implements ServerInterface {
         UserProfile userProfile = null;
 
         // Check whether the user has a user profile in the cache already
-        for (UserProfile user : userCache) {
+        for (UserProfile user : getTopArtistsByUserGenre) {
             if (user.userID.equals(userID)) {
                 userProfile = user;
 
                 // We also remove the user profile found from the cache since it will be re-added into the
                 // most recent position
-                userCache.remove(userProfile);
+                getTopArtistsByUserGenre.remove(userProfile);
                 break;
             }
         }
@@ -371,10 +371,10 @@ public class Server implements ServerInterface {
         }
 
         // If the user cache is at max capacity, we remove the oldest entry
-        if (userCache.size() >= 100)
-            userCache.remove();
+        if (getTopArtistsByUserGenre.size() >= 100)
+            getTopArtistsByUserGenre.remove();
 
-        userCache.add(userProfile);
+        getTopArtistsByUserGenre.add(userProfile);
     }
 
     /**
