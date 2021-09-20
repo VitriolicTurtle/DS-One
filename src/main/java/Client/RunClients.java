@@ -7,12 +7,25 @@ public class RunClients {
     Client client;
     String filename = "src/main/java/Client/Queries/cached_input.txt";
     Scanner scanner = null;
+    Boolean ClientCache = true;
+    int count = 0;
 
     /**
      * Sends Queries to servers.
      */
     public void sendQuery() {
         while (scanner.hasNextLine()) {
+            if (ClientCache) {
+                if ((count % 10) == 0) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            count++;
+
             String line = scanner.nextLine();
             String[] data = line.split(" ");
 
@@ -44,6 +57,7 @@ public class RunClients {
 
     /**
      * Main thread for client.
+     *
      * @param args runtime arguments.
      */
     public static void main(String[] args) {
