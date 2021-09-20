@@ -30,6 +30,7 @@ public class GetTopArtistsByUserGenreQuery extends Query {
         super(clientZone, clientNumber);
         this.userID = userID;
         this.genre = genre;
+        this.result = new String[3];
     }
 
     /**
@@ -39,9 +40,9 @@ public class GetTopArtistsByUserGenreQuery extends Query {
      */
     @Override
     public void run(String filename, Server server) {
-        Scanner scanner = null;
-        HashMap<String, Integer> playCounts = new HashMap<String, Integer>();
+        HashMap<MusicProfile, Integer> playCounts = new HashMap<MusicProfile, Integer>();
 
+        Scanner scanner = null;
         try {
             scanner = new Scanner(new File(filename));
         } catch (Exception e) {
@@ -50,102 +51,74 @@ public class GetTopArtistsByUserGenreQuery extends Query {
             System.exit(1);
         }
 
-        // Hashmaps needed for making cache entry.
-        HashMap<String, Integer> musicCounts = new HashMap<>();
-        HashMap<String, ArrayList<String>> artists = new HashMap<>();
-
-        //ArrayList<String> musicIDs = new ArrayList<>();
-        //ArrayList<Integer> timesPlayed = new ArrayList<>();
-
         while (scanner.hasNextLine()) {
-            ArrayList<String> tempArtistList = new ArrayList<>();
-
             String line = scanner.nextLine();
-            if (!line.contains(userID) || !line.contains(genre)) {
+            if (!line.contains(userID) || !line.contains(genre))
                 continue;
-            }
 
             String[] data = line.split(",");
 
-            // Find all artists in the data entry
+            // Create a music profile for the music
+            ArrayList<String> artists = new ArrayList<>();
             for (int i = 1; i < data.length; i++) {
-                if (!data[i].startsWith("A")) {
+                if (!data[i].startsWith("A"))
                     break;
-                }
-                tempArtistList.add(data[i]);
 
-                // Update the play count for the artist fou
-                if (playCounts.containsKey(data[i])) {
-                    playCounts.put(data[i], playCounts.get(data[i]) + Integer.parseInt(data[data.length - 1]));
-                } else {
-                    playCounts.put(data[i], Integer.parseInt(data[data.length - 1]));
-                }
+                artists.add(data[i]);
             }
-            artists.put(data[0], tempArtistList);
 
-            // Add info to cache:
-            int timesPlayed = Integer.parseInt(data[data.length - 1]);
-            musicCounts.put(data[0], (musicCounts.containsKey(data[0]) ? musicCounts.get(data[0]) + timesPlayed : timesPlayed));
+            MusicProfile musicProfile = new MusicProfile(data[0], artists);
+            int plays = Integer.parseInt(data[data.length - 1]);
+
+            // Add the music profile and its plays
+            if (playCounts.containsKey(musicProfile)) {
+                playCounts.put(musicProfile, playCounts.get(musicProfile) + plays);
+            } else {
+                playCounts.put(musicProfile, plays);
+            }
         }
 
-        String[] topThreeArtists = new String[3];
-        for (int i = 0; i < Math.min(3, playCounts.size()); i++) {
-            Map.Entry<String, Integer> topEntry = null;
-            for (Map.Entry<String, Integer> entry : playCounts.entrySet()) {
+        // Find the top three music profiles (based off of play counts)
+        MusicProfile[] topThreeProfiles = new MusicProfile[3];
+        int[] topThreePlayCounts = new int[3];
+
+        for (int i = 0; i < 3; i++) {
+            Map.Entry<MusicProfile, Integer> topEntry = null;
+            for (Map.Entry<MusicProfile, Integer> entry : playCounts.entrySet()) {
                 topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ? entry : topEntry;
+            }
+            if (topEntry == null) {
+                break;
             }
             playCounts.remove(topEntry.getKey());
-            topThreeArtists[i] = topEntry.getKey();
+
+            topThreeProfiles[i] = topEntry.getKey();
+            topThreePlayCounts[i] = topEntry.getValue();
         }
 
-        result = topThreeArtists;
-        // Create cache entry.
-        generateCacheEntry(musicCounts, artists, server);
-    }
+        System.out.println(topThreeProfiles[0]);
+        System.out.println(topThreeProfiles[1]);
+        System.out.println(topThreeProfiles[2]);
 
-    /**
-     *
-     * @param music
-     * @param artists
-     * @param server
-     */
-    private void generateCacheEntry(HashMap<String, Integer> music, HashMap<String, ArrayList<String>> artists, Server server){
-        // Find the top three played musics
-        String[] topThreeMusic = new String[3];
-        Integer[] topThreePlays = new Integer[3];
-        for (int i = 0; i < Math.min(3, music.size()); i++) {
-            Map.Entry<String, Integer> topEntry = null;
-            for (Map.Entry<String, Integer> entry : music.entrySet()) {
-                topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ? entry : topEntry;
-            }
-            music.remove(topEntry.getKey());
-            topThreeMusic[i] = topEntry.getKey();
-            topThreePlays[i] = topEntry.getValue();
-        }
 
-        // Create value for cache entry
-        HashMap<MusicProfile, Integer> musicEntry = new HashMap<>();
-        // Add the (up to) 3 songs with their artists.
+        // Add the result to the query
+        int resultIdx = 0;
+        for (int i = 0; i < 3; i++) {
+            if (topThreeProfiles[i] == null || resultIdx >= 3)
+                break;
 
-        for (int i = 0; i < topThreeMusic.length; i++) {
-            if (topThreeMusic[i] != null) {
-                MusicProfile tempMusicProfile = new MusicProfile(topThreeMusic[i], artists.get(topThreeMusic[i]));
-                musicEntry.put(tempMusicProfile, topThreePlays[i]);
+            for (String artist : topThreeProfiles[i].artists) {
+                result[resultIdx] = artist;
+                resultIdx++;
+
+                if (resultIdx >= 3)
+                    break;
             }
         }
 
-        // Make temporary user profile
-        UserProfile tempUserProfile = new UserProfile(userID);
-        tempUserProfile.favoriteMusics.put(genre, musicEntry);
-
-
-        // Return cache entry;
-        System.err.println("USERPROFILE GENERATED BY GETTOPARTISTS" + tempUserProfile);
-        server.addToCache(tempUserProfile);
-
-        this.cache = tempUserProfile;
+        // Cache the query result
+        server.cacheGetTopArtistsByUserGenre(userID, genre, topThreeProfiles, topThreePlayCounts);
     }
-
 
     @Override
     public String toString() {

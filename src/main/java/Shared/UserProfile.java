@@ -2,15 +2,19 @@ package Shared;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class UserProfile implements Serializable {
     public String userID;
-    public HashMap<String, HashMap<MusicProfile, Integer>> favoriteMusics;
+
+    // Use a linked hashmap so that we can easily remove the earliest added genre when a new genre is cached
+    // FavoriteMusic<Genre, MusicMap<MusicProfile, plays>>
+    public LinkedHashMap<String, HashMap<MusicProfile, Integer>> favoriteMusics;
 
     public UserProfile(String userID) {
         this.userID = userID;
-        this.favoriteMusics = new HashMap<>();
+        this.favoriteMusics = new LinkedHashMap<>(100);
     }
 
     @Override

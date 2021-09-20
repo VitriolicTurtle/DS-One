@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class RunClients {
     Client client;
-    String filename = "src/main/java/Client/Queries/testing_queries.txt";
+    String filename = "src/main/java/Client/Queries/cached_input.txt";
     Scanner scanner = null;
 
     /**
@@ -40,7 +40,6 @@ public class RunClients {
             System.out.println("Something went wrong when trying to create scanner object.");
             System.exit(1);
         }
-
     }
 
     /**

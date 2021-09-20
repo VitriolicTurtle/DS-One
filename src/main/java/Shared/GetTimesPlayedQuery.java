@@ -1,6 +1,7 @@
 package Shared;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import Server.Server;
@@ -30,9 +31,11 @@ public class GetTimesPlayedQuery extends Query {
 
     @Override
     public void run(String filename, Server server) {
-        Scanner scanner = null;
         int counter = 0;
+        ArrayList<String> artists = new ArrayList<>();
+        boolean foundArtists = false;
 
+        Scanner scanner = null;
         try {
             scanner = new Scanner(new File(filename));
         } catch (Exception e) {
@@ -48,8 +51,19 @@ public class GetTimesPlayedQuery extends Query {
 
             String[] data = line.split(",");
             counter += Integer.parseInt(data[data.length - 1]);
+
+            if (!foundArtists) {
+                for (int i = 1; i < data.length; i++) {
+                    if (!data[i].startsWith("A")) { break; }
+                    artists.add(data[i]);
+                }
+                foundArtists = true;
+            }
         }
         result = counter;
+
+        // Cache the query result
+        server.cacheGetTimesPlayed(musicID, artists, result);
     }
 
     @Override

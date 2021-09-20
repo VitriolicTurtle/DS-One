@@ -36,9 +36,12 @@ public class GetTimesPlayedByUserQuery extends Query {
 
     @Override
     public void run(String filename, Server server) {
-        Scanner scanner = null;
         int counter = 0;
+        String genre = null;
+        ArrayList<String> artists = new ArrayList<>();
+        boolean foundArtists = false;
 
+        Scanner scanner = null;
         try {
             scanner = new Scanner(new File(filename));
         } catch (Exception e) {
@@ -46,10 +49,6 @@ public class GetTimesPlayedByUserQuery extends Query {
             System.out.println("Something went wrong while trying to complete request.");
             System.exit(1);
         }
-
-        String tempGenre = "";
-        ArrayList<String> tempArtists = new ArrayList<>();
-        int tempTimesPlayed = 0;
 
         //  Scan trough entire dataset and count amount of times listened to song by userID.
         while (scanner.hasNextLine()) {
@@ -59,34 +58,20 @@ public class GetTimesPlayedByUserQuery extends Query {
             String[] data = line.split(",");
             counter += Integer.parseInt(data[data.length - 1]);
 
-            // Get additional info needed for cache entry.
-            tempGenre = data[data.length - 3];
-            tempArtists.addAll(Arrays.asList(data).subList(1, data.length - 3));
+            if (!foundArtists) {
+                for (int i = 1; i < data.length; i++) {
+                    if (!data[i].startsWith("A")) { break; }
+                    artists.add(data[i]);
+                }
+                genre = data[data.length - 3];
+                foundArtists = true;
+            }
         }
         result = counter;
-        // Create cache entry.
-        generateCacheEntry(tempGenre, tempArtists, counter, server);
-    }
 
-    /**
-     *
-     * @param genre: Genre used to categorize the music entry in favouriteMusics.
-     * @param artists: List of artists to be added to the MusicProfile entry in cache.
-     * @param timesPlayed: Times the user has played the song.
-     * @param server: Instance of server.
-     */
-    private void generateCacheEntry(String genre, ArrayList<String> artists, int timesPlayed, Server server){
-        HashMap<MusicProfile, Integer> musicEntry = new HashMap<>();
-        MusicProfile tempMusicProfile = new MusicProfile(musicID,artists);
-        musicEntry.put(tempMusicProfile, timesPlayed);
-
-        // Make temporary user profile
-        UserProfile tempUserProfile = new UserProfile(userID);
-        tempUserProfile.favoriteMusics.put(genre, musicEntry);
-
-        // Return cache entry;
-        server.addToCache(tempUserProfile);
-        this.cache = tempUserProfile;
+        // Cache the query result (if there were at least one recording of the user playing the music)
+        if (foundArtists)
+            server.cacheGetTimesPlayedByUser(userID, musicID, genre, artists, result);
     }
 
     @Override

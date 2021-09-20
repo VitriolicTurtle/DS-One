@@ -17,12 +17,14 @@ public class Server implements ServerInterface {
     private int port;
 
     private Boolean serverCaching;
-    private LinkedList<UserProfile> cache = new LinkedList<>();
+
+    private LinkedList<UserProfile> userCache = new LinkedList<>();
+    private LinkedHashMap<MusicProfile, Integer> musicCache = new LinkedHashMap<>(100);
 
     ConcurrentLinkedQueue<Query> queue = new ConcurrentLinkedQueue<>();
 
-    private final String dataFilename = "src\\main\\java\\Server\\Data\\dataset.csv"; // Windows
-    //private final String dataFilename = "src/main/java/Server/Data/dataset.csv"; // MAC
+    //private final String dataFilename = "src\\main\\java\\Server\\Data\\dataset.csv"; // Windows
+    private final String dataFilename = "src/main/java/Server/Data/dataset.csv"; // MAC
 
     /**
      * Constructor for server.
@@ -62,30 +64,65 @@ public class Server implements ServerInterface {
      * @param query
      * @return
      */
-    public boolean searchCache(GetTimesPlayedByUserQuery query) {
-        // Find user profile object in list
-        UserProfile tempUser = cache.stream().filter(user -> query.userID.equals(user.userID)).findFirst().orElse(null);
-        if(tempUser != null){
-            // Default value -1
-            int cachedResult = -1;
-            // Scan the entire favouriteMusics hashmap to see if it exists there.
-            // For each favouriteMusics object (genre).
-            for(Map.Entry<String, HashMap<MusicProfile, Integer>> genreEntry : tempUser.favoriteMusics.entrySet()){
-                // For each favouriteMusics object value (songs in hashmap by genre key).
-                for(Map.Entry<MusicProfile, Integer> songEntry: genreEntry.getValue().entrySet()){
-                    // Check if the musicID is present.
-                    if(songEntry.getKey().musicID.equals(query.musicID)){
-                        cachedResult = songEntry.getValue();
-                    }
+    public boolean cache(GetTimesPlayedByUserQuery query) {
+        UserProfile userProfile = null;
+
+        // Check if the cache contains a UserProfile object for the user
+        for (UserProfile user : userCache) {
+            if (query.userID.equals(user.userID)) {
+                userProfile = user;
+            }
+        }
+
+        // If no user object was found for the user, false (a cache miss) is returned
+        if (userProfile == null)
+            return false;
+
+        // Search the user profile object to see if an entry for the music exists
+
+        // Loop through each genre's value map in the user profile
+        for (Map.Entry<String, HashMap<MusicProfile, Integer>> genreEntry : userProfile.favoriteMusics.entrySet()) {
+
+            // Loop through each music profile entry in the genre's map value
+            for (Map.Entry<MusicProfile, Integer> musicEntry : genreEntry.getValue().entrySet()) {
+
+                // Check if we have found the music we are looking for
+                if (query.musicID.equals(musicEntry.getKey().musicID)) {
+
+                    // If we have found the correct music, we add the cached play count to the query result and
+                    // return true (a cache hit)
+                    query.result = musicEntry.getValue();
+
+                    // Remove the genre entry from the favoriteMusics map, then re-add it to place it as the most
+                    // recent genre queried in the cache
+                    userProfile.favoriteMusics.remove(genreEntry.getKey());
+                    userProfile.favoriteMusics.put(genreEntry.getKey(), genreEntry.getValue());
+
+                    System.err.println("Cache hit for: GetTimesPlayedByUser");
+                    return true;
                 }
             }
-            if(cachedResult >= 0) {
-                query.result = cachedResult;
+        }
+
+        // If no entry for the music were found in the user profile, we return false (a cache miss)
+        return false;
+    }
+
+    /**
+     *
+     * @param query
+     * @return
+     */
+    public boolean cache(GetTimesPlayedQuery query) {
+        for (Map.Entry<MusicProfile, Integer> musicEntry : musicCache.entrySet()) {
+            // If we have a cache hit
+            if (musicEntry.getKey().musicID.equals(query.musicID)) {
+                query.result = musicEntry.getValue();
+                System.err.println("Cache hit for: GetTimesPlayed");
                 return true;
             }
         }
         return false;
-
     }
 
     /**
@@ -93,86 +130,42 @@ public class Server implements ServerInterface {
      * @param query
      * @return
      */
-    public boolean searchCache(GetTimesPlayedQuery query) {
-        int cachedResult = 0;
-        for(UserProfile user : cache){
-            for(Map.Entry<String, HashMap<MusicProfile, Integer>> genreEntry : user.favoriteMusics.entrySet()){
-                // For each favouriteMusics object value (songs in hashmap by genre key).
-                for(Map.Entry<MusicProfile, Integer> songEntry: genreEntry.getValue().entrySet()){
-                    // Check if the musicID is present.
-                    System.err.println(songEntry.getKey().musicID);
-                    if(songEntry.getKey().musicID.equals(query.musicID)){
-                        cachedResult += songEntry.getValue();
-                    }
-                }
+    public boolean cache(GetTopThreeMusicByUserQuery query) {
+        UserProfile userProfile = null;
+
+        // Search the cache for a user profile for the current user
+        for (UserProfile user : userCache) {
+            if (query.userID.equals(user.userID)) {
+                userProfile = user;
             }
         }
 
-        if(cachedResult > 0) {
-            //System.err.println("CACHED " + cachedResult);
-            query.result = cachedResult;
-            return true;
-        }
+        // If no user profile was found in the cache, we return false (a cache miss)
+        if (userProfile == null)
+            return false;
 
-        return false;
-    }
-
-    /**
-     *
-     * @param query
-     * @return
-     */
-    public boolean searchCache(GetTopArtistsByUserGenreQuery query) {
-        String userID = query.userID;
-        String genre = query.genre;
-        boolean hit = false;
-
-        // Check if cache miss, and return false without doing any further work if so
-        UserProfile profile = null;
-        for (UserProfile userProfile : cache) {
-            if (Objects.equals(userProfile.userID, userID)) {
-                profile = userProfile;
-
-                // Check that the cache can provide an answer to the query. We have a cache miss if it cannot
-                hit = (profile.favoriteMusics.containsKey(genre));
-                break;
-            }
-        }
-        if (!hit) { return false; }
-
-        // Find the query result from the cache
-        HashMap<String, Integer> artistPlayCounts = new HashMap<>();
-
-        for (Map.Entry<String, HashMap<MusicProfile, Integer>> genreEntry : profile.favoriteMusics.entrySet()) {
-            if (!Objects.equals(genreEntry.getKey(), genre)) { continue; }
-            for (Map.Entry<MusicProfile, Integer> entry : genreEntry.getValue().entrySet()) {
-                int plays = entry.getValue();
-                ArrayList<String> artists = entry.getKey().artists;
-                for (String artist : artists) {
-                    if (artistPlayCounts.containsKey(artist)) {
-                        artistPlayCounts.put(artist, artistPlayCounts.get(artist) + plays);
-                    } else {
-                        artistPlayCounts.put(artist, plays);
-                    }
-                }
+        // Collect the play counts of all the songs found in the cache for this user profile
+        HashMap<MusicProfile, Integer> playCounts = new HashMap<>();
+        // For each genre-hashmap entry in the userProfile.favoriteMusics map
+        for (Map.Entry<String, HashMap<MusicProfile, Integer>> genreEntry : userProfile.favoriteMusics.entrySet()) {
+            for (Map.Entry<MusicProfile, Integer> musicEntry : genreEntry.getValue().entrySet()) {
+                playCounts.put(musicEntry.getKey(), musicEntry.getValue());
             }
         }
 
-        String[] topArtists = new String[3];
-        for (int i = 0; i < 3; i++)
-            topArtists[i] = "-";
-
-        // Find the top 3 artists from the artistPlayCount map
-        for (int i = 0; i < Math.min(3, artistPlayCounts.size()); i++) {
-            Map.Entry<String, Integer> topEntry = null;
-            for (Map.Entry<String, Integer> entry : artistPlayCounts.entrySet()) {
+        // Find the top 3 most played music entries
+        for (int i = 0; i < Math.min(3, playCounts.size()); i++) {
+            Map.Entry<MusicProfile, Integer> topEntry = null;
+            for (Map.Entry<MusicProfile, Integer> entry : playCounts.entrySet()) {
                 topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ? entry : topEntry;
             }
-            artistPlayCounts.remove(topEntry.getKey());
-            topArtists[i] = topEntry.getKey();
+            playCounts.remove(topEntry.getKey());
+
+            query.result[i] = topEntry.getKey().musicID;
         }
 
-        query.result = topArtists;
+        System.err.println("Cache hit for: GetTopThreeMusicByUser");
+        // Return true (a cache hit)
         return true;
     }
 
@@ -181,107 +174,207 @@ public class Server implements ServerInterface {
      * @param query
      * @return
      */
-    public boolean searchCache(GetTopThreeMusicByUserQuery query) {
-        String userID = query.userID;
-        boolean hit = false;
+    public boolean cache(GetTopArtistsByUserGenreQuery query) {
+        UserProfile userProfile = null;
 
-        // Check if cache miss, and return false without doing any further work if so
-        UserProfile profile = null;
-        for (UserProfile userProfile : cache) {
-            if (Objects.equals(userProfile.userID, userID)) {
-                profile = userProfile;
-                hit = true;
-                break;
-            }
-        }
-        if (!hit) { return false; }
-
-        System.out.println(profile);
-
-        // Find the query result from the cache
-        HashMap<String, Integer> musicPlayCounts = new HashMap<>();
-
-        for (Map.Entry<String, HashMap<MusicProfile, Integer>> genreEntry : profile.favoriteMusics.entrySet()) {
-            for (Map.Entry<MusicProfile, Integer> entry : genreEntry.getValue().entrySet()) {
-
-                int plays = entry.getValue();
-                String music = entry.getKey().musicID;
-                if (musicPlayCounts.containsKey(music)) {
-                    musicPlayCounts.put(music, musicPlayCounts.get(music) + plays);
-                } else {
-                    musicPlayCounts.put(music, plays);
-                }
+        // Search the cache for a user profile for the current user
+        for (UserProfile user : userCache) {
+            if (query.userID.equals(user.userID)) {
+                userProfile = user;
             }
         }
 
-        String[] topMusic = new String[3];
-        for (int i = 0; i < 3; i++)
-            topMusic[i] = "Q";
+        // If no user profile was found in the cache, or
+        // if the userProfile found does not have an entry for the queried genre, we return false (a cache miss)
+        if (userProfile == null || !userProfile.favoriteMusics.containsKey(query.genre))
+            return false;
 
-        // Find the top 3 musics from the musicPlayCounts map
-        for (int i = 0; i < Math.min(3, musicPlayCounts.size()); i++) {
-            Map.Entry<String, Integer> topEntry = null;
-            for (Map.Entry<String, Integer> entry : musicPlayCounts.entrySet()) {
+        // Fetch the musicMap containing the music profiles and their respective play counts from the user profile
+        // indexed by the genre
+        HashMap<MusicProfile, Integer> musicMap = new HashMap<>(userProfile.favoriteMusics.get(query.genre));
+        int resultIdx = 0;
+
+        // Find the most played music profiles in the cache for this genre and user, in order from most played to least
+        for (int i = 0; i < Math.min(3, musicMap.size()); i++) {
+            Map.Entry<MusicProfile, Integer> topEntry = null;
+            for (Map.Entry<MusicProfile, Integer> entry : musicMap.entrySet()) {
                 topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ? entry : topEntry;
             }
-            musicPlayCounts.remove(topEntry.getKey());
-            topMusic[i] = topEntry.getKey();
+            musicMap.remove(topEntry.getKey());
+
+            // Add the artists to the query result
+            for (int j = 0; j < topEntry.getKey().artists.size(); j++) {
+                if (resultIdx >= 3 || topEntry.getKey().artists.get(j) == null)
+                    break;
+
+                query.result[resultIdx] = topEntry.getKey().artists.get(j);
+                resultIdx++;
+            }
         }
 
-        query.result = topMusic;
+        System.err.println("Cache hit for: GetTopArtistsByUserGenre");
+        // Return true (a cache hit)
         return true;
     }
 
-    /**
-     *
-     * @param userProfile
-     */
-    public void addToCache(UserProfile userProfile) {
-        UserProfile previous = null;
-        for (UserProfile cacheProfile : cache) {
-            if (cacheProfile.userID.equals(userProfile.userID)) {
-                previous = cacheProfile;
+    public void cacheGetTimesPlayedByUser(String userID, String musicID, String genre, ArrayList<String> artists, int plays) {
+        MusicProfile musicProfile = new MusicProfile(musicID, artists);
+        UserProfile userProfile = null;
+
+        // Check whether the user has a user profile in the cache already
+        for (UserProfile user : userCache) {
+            if (user.userID.equals(userID)) {
+                userProfile = user;
+
+                // We also remove the user profile found from the cache since it will be re-added into the
+                // most recent position
+                userCache.remove(userProfile);
                 break;
             }
         }
 
-        // If we have no previous entry for this user in the cache
-        if (previous == null) {
-            if (cache.size() >= 100) { cache.remove(); }
-            cache.add(userProfile);
-            return;
+        // If the user profile did not already exist in the cache, we create a new one
+        if (userProfile == null)
+            userProfile = new UserProfile(userID);
+
+        // Add the new musicProfile to the userProfile
+
+        // If the favoriteMusics map doesn't contain an entry for this genre
+        if (!userProfile.favoriteMusics.containsKey(genre)) {
+
+            // If the favoriteMusics map already contains 3 or more genre entries we remove the oldest entry
+            //if (userProfile.favoriteMusics.size() >= 3)
+            //    userProfile.favoriteMusics.remove(userProfile.favoriteMusics.entrySet().iterator().next().getKey());
+
+            // Add the new genre to the favoriteMusics map
+            userProfile.favoriteMusics.put(genre, new HashMap<MusicProfile, Integer>());
         }
 
-        // Otherwise we have found a previous userprofile entry in the cache for this user, so we merge their contents and
-        // move it to the back of the list (most recent)
+        // Add the music profile and its play count to the mapping value for the music's genre
+        userProfile.favoriteMusics.get(genre).put(musicProfile, plays);
 
-        // Remove the previous entry
-        cache.remove(previous);
+        // If the userCache is at max capacity, we remove the oldest entry
+        if (userCache.size() >= 100)
+            userCache.remove();
 
-        //System.err.println(previous);
-        //System.err.println(userProfile);
+        userCache.add(userProfile);
+    }
 
-        // Merge the previous and new entry
-        for (Map.Entry<String, HashMap<MusicProfile, Integer>> genreEntry : previous.favoriteMusics.entrySet()) {
-            // If data about the genre exists in both the previous and new entry, we merge the contents
-            if (userProfile.favoriteMusics.containsKey(genreEntry.getKey())) {
-                for (Map.Entry<MusicProfile, Integer> musicEntry : genreEntry.getValue().entrySet()) {
-                    if (userProfile.favoriteMusics.get(genreEntry.getKey()).containsKey(musicEntry.getKey())) {
-                        continue;
-                    } else {
-                        userProfile.favoriteMusics.get(genreEntry.getKey()).put(musicEntry.getKey(), musicEntry.getValue());
-                    }
-                }
-            }
-            // Otherwise we just add the extra genre data to the new entry so that it contains all the new and old data
-            else {
-                userProfile.favoriteMusics.put(genreEntry.getKey(), genreEntry.getValue());
+    public void cacheGetTimesPlayed(String musicID, ArrayList<String> artists, int plays) {
+        MusicProfile musicProfile = new MusicProfile(musicID, artists);
+
+        if (musicCache.containsKey(musicProfile)) {
+            // If the music profile is cached already, we remove it and re-add the new one to move it to the front
+            // (most recent)
+            musicCache.remove(musicProfile);
+        } else if (musicCache.size() >= 100) {
+            // If the cache is at max capacity we remove the oldest entry
+            musicCache.remove(musicCache.entrySet().iterator().next().getKey());
+        }
+
+        // Add the new entry to the cache
+        musicCache.put(musicProfile, plays);
+    }
+
+    public void cacheGetTopThreeMusicByUser(
+            String userID, MusicProfile[] topThreeMusicProfiles, int[] topThreePlayCounts, String[] topThreeGenres) {
+        UserProfile userProfile = null;
+
+        // Check whether the user has a user profile in the cache already
+        for (UserProfile user : userCache) {
+            if (user.userID.equals(userID)) {
+                userProfile = user;
+
+                // We also remove the user profile found from the cache since it will be re-added into the
+                // most recent position
+                userCache.remove(userProfile);
+                break;
             }
         }
 
-        // Finally, add the merged userprofile object to the end of the list (most recent)
-        cache.add(userProfile);
-        //System.err.println(userProfile);
+        // If the user profile did not already exist in the cache, we create a new one
+        if (userProfile == null)
+            userProfile = new UserProfile(userID);
+
+        // Add the provided music profiles to the cache user profile
+        for (int i = 0; i < 3; i++) {
+            MusicProfile musicProfile = topThreeMusicProfiles[i];
+            int plays = topThreePlayCounts[i];
+            String genre = topThreeGenres[i];
+
+            // Since a user could have listened to less than 3 artists and/or songs throughout the entire dataset,
+            // we could potentially have less than 3 valid music profiles here
+            if (musicProfile == null)
+                break;
+
+            // If the user profile doesn't already have an entry for the provided genre, we need to add one
+            if (!userProfile.favoriteMusics.containsKey(genre)) {
+                // If the favoriteMusics map is at max capacity, we remove the oldest entry
+                //if (userProfile.favoriteMusics.size() >= 3)
+                //    userProfile.favoriteMusics.remove(userProfile.favoriteMusics.entrySet().iterator().next().getKey());
+
+                // Create the new entry for the genre in the favoriteMusics map
+                userProfile.favoriteMusics.put(genre, new HashMap<MusicProfile, Integer>());
+            }
+
+            // Add the music profile and its plays to the entry
+            userProfile.favoriteMusics.get(genre).put(musicProfile, plays);
+        }
+
+        // If the userCache is at max capacity, we remove the oldest entry
+        if (userCache.size() >= 100)
+            userCache.remove();
+
+        userCache.add(userProfile);
+    }
+
+    public void cacheGetTopArtistsByUserGenre(
+            String userID, String genre, MusicProfile[] topThreeProfiles, int[] topThreePlayCounts) {
+        UserProfile userProfile = null;
+
+        // Check whether the user has a user profile in the cache already
+        for (UserProfile user : userCache) {
+            if (user.userID.equals(userID)) {
+                userProfile = user;
+
+                // We also remove the user profile found from the cache since it will be re-added into the
+                // most recent position
+                userCache.remove(userProfile);
+                break;
+            }
+        }
+
+        // If the user profile did not already exist in the cache, we create a new one
+        if (userProfile == null)
+            userProfile = new UserProfile(userID);
+
+        // Add the provided music profiles to the cache user profile
+
+        // If the user profile favoriteMusics doesn't already have an entry for the current genre
+        if (!userProfile.favoriteMusics.containsKey(genre)) {
+            // If the favoriteMusics map is at max capacity, we remove the oldest entry
+            //if (userProfile.favoriteMusics.size() >= 3)
+            //    userProfile.favoriteMusics.remove(userProfile.favoriteMusics.entrySet().iterator().next().getKey());
+
+            // Add an entry for the new genre
+            userProfile.favoriteMusics.put(genre, new HashMap<MusicProfile, Integer>());
+        }
+
+        // Add the music profiles provided to the genre entry in favoriteMusics
+        for (int i = 0; i < 3; i++) {
+            // Since a user could have listened to less than 3 artists and/or songs throughout the entire dataset,
+            // we could potentially have less than 3 valid music profiles here
+            if (topThreeProfiles[i] == null)
+                break;
+
+            userProfile.favoriteMusics.get(genre).put(topThreeProfiles[i], topThreePlayCounts[i]);
+        }
+
+        // If the user cache is at max capacity, we remove the oldest entry
+        if (userCache.size() >= 100)
+            userCache.remove();
+
+        userCache.add(userProfile);
     }
 
     /**

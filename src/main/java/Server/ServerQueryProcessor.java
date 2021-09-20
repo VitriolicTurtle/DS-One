@@ -60,14 +60,14 @@ public class ServerQueryProcessor implements Runnable {
             // Check if we can resolve the query from cache
             boolean cacheHit = false;
             if (serverCaching) {
-                //if (currentQuery instanceof GetTimesPlayedByUserQuery) {
-                //    cacheHit = server.searchCache((GetTimesPlayedByUserQuery) currentQuery);
-//                } else if (currentQuery instanceof GetTimesPlayedQuery) {
-//                    cacheHit = server.searchCache((GetTimesPlayedQuery) currentQuery);
-                if (currentQuery instanceof GetTopArtistsByUserGenreQuery) {
-                    cacheHit = server.searchCache((GetTopArtistsByUserGenreQuery) currentQuery);
-                } else if (currentQuery instanceof  GetTopThreeMusicByUserQuery) {
-                    cacheHit = server.searchCache((GetTopThreeMusicByUserQuery) currentQuery);
+                if (currentQuery instanceof GetTimesPlayedByUserQuery) {
+                    cacheHit = server.cache((GetTimesPlayedByUserQuery) currentQuery);
+                } else if (currentQuery instanceof GetTimesPlayedQuery) {
+                    cacheHit = server.cache((GetTimesPlayedQuery) currentQuery);
+                } else if (currentQuery instanceof GetTopArtistsByUserGenreQuery) {
+                    cacheHit = server.cache((GetTopArtistsByUserGenreQuery) currentQuery);
+                } else if (currentQuery instanceof GetTopThreeMusicByUserQuery) {
+                    cacheHit = server.cache((GetTopThreeMusicByUserQuery) currentQuery);
                 }
             }
 

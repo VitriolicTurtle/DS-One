@@ -4,6 +4,7 @@ import Server.ProxyServerInterface;
 import Server.ServerInterface;
 import Shared.*;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
@@ -146,12 +147,6 @@ public class Client implements ClientCallbackInterface, Serializable {
             // Finally, set the timestamp for when the query is sent from the client, then send it to the server
             query.timeStamps[0] = System.currentTimeMillis();
             server.sendQuery(query);
-//            if (!searchCache(query)){
-//
-//            }else{
-//                getFromCache(query);
-//            }
-
             sentQueries++;
             System.out.println("Client sent query. Number of sent queries: " + sentQueries);
         } catch (Exception e) {
@@ -165,17 +160,14 @@ public class Client implements ClientCallbackInterface, Serializable {
      *
      */
     private void addToCache(Query response){
-
+        ;
     }
 
     /**
      *
      */
     private boolean searchCache(Query query){
-        boolean hit = false;
-
-
-        return true;
+        return false;
     }
 
     /**
@@ -196,7 +188,9 @@ public class Client implements ClientCallbackInterface, Serializable {
     private void conclude() {
         System.out.println("Writing query responses to file ...");
         try {
-            FileWriter writer = new FileWriter("src\\main\\java\\Client\\Outputs\\output_naive.txt");
+            //File file = new File("src\\main\\java\\Client\\Outputs\\output.txt"); // WINDOWS
+            File file = new File("src/main/java/Client/Outputs/output.txt"); // MAC
+            FileWriter writer = new FileWriter(file);
 
             while (responses.size() != 0){
                 Query response = responses.remove();
@@ -227,40 +221,23 @@ public class Client implements ClientCallbackInterface, Serializable {
             }
 
             // Write the average times to file
-            getTimesPlayedByUserTurnaround /= sentQueries;
-            getTimesPlayedByUserExecution /= sentQueries;
-            getTimesPlayedByUserWaiting /= sentQueries;
+            writer.write("\nAverage turnaround time for getTimesPlayedByUser queries: " + getTimesPlayedByUserTurnaround / sentQueries + "ms\n");
+            writer.write("Average execution time for getTimesPlayedByUser queries: " + getTimesPlayedByUserExecution / sentQueries + "ms\n");
+            writer.write("Average waiting time for getTimesPlayedByUser queries: " + getTimesPlayedByUserWaiting / sentQueries + "ms\n\n");
 
-            getTimesPlayedTurnaround /= sentQueries;
-            getTimesPlayedExecution /= sentQueries;
-            getTimesPlayedWaiting /= sentQueries;
+            writer.write("Average turnaround time for getTimesPlayed queries: " + getTimesPlayedTurnaround / sentQueries + "ms\n");
+            writer.write("Average execution time for getTimesPlayed queries: " + getTimesPlayedExecution / sentQueries + "ms\n");
+            writer.write("Average waiting time for getTimesPlayed queries: " + getTimesPlayedWaiting / sentQueries + "ms\n\n");
 
-            getTopArtistsByUserGenreTurnaround /= sentQueries;
-            getTopArtistsByUserGenreExecution /= sentQueries;
-            getTopArtistsByUserGenreWaiting /= sentQueries;
+            writer.write("Average turnaround time for getTopArtistsByUserGenre queries: " + getTopArtistsByUserGenreTurnaround / sentQueries + "ms\n");
+            writer.write("Average execution time for getTopArtistsByUserGenre queries: " + getTopArtistsByUserGenreExecution / sentQueries + "ms\n");
+            writer.write("Average waiting time for getTopArtistsByUserGenre queries: " + getTopArtistsByUserGenreWaiting / sentQueries + "ms\n\n");
 
-            getTopThreeMusicByUserTurnaround /= sentQueries;
-            getTopThreeMusicByUserExecution /= sentQueries;
-            getTopThreeMusicByUserWaiting /= sentQueries;
-
-            writer.write("\nAverage turnaround time for getTimesPlayedByUser queries: " + getTimesPlayedByUserTurnaround + "ms\n");
-            writer.write("Average execution time for getTimesPlayedByUser queries: " + getTimesPlayedByUserExecution + "ms\n");
-            writer.write("Average waiting time for getTimesPlayedByUser queries: " + getTimesPlayedByUserWaiting + "ms\n\n");
-
-            writer.write("Average turnaround time for getTimesPlayed queries: " + getTimesPlayedTurnaround + "ms\n");
-            writer.write("Average execution time for getTimesPlayed queries: " + getTimesPlayedExecution + "ms\n");
-            writer.write("Average waiting time for getTimesPlayed queries: " + getTimesPlayedWaiting + "ms\n\n");
-
-            writer.write("Average turnaround time for getTopArtistsByUserGenre queries: " + getTopArtistsByUserGenreTurnaround + "ms\n");
-            writer.write("Average execution time for getTopArtistsByUserGenre queries: " + getTopArtistsByUserGenreExecution + "ms\n");
-            writer.write("Average waiting time for getTopArtistsByUserGenre queries: " + getTopArtistsByUserGenreWaiting + "ms\n\n");
-
-            writer.write("Average turnaround time for getTopThreeMusicByUser queries: " + getTopThreeMusicByUserTurnaround + "ms\n");
-            writer.write("Average execution time for getTopThreeMusicByUser queries: " + getTopThreeMusicByUserExecution + "ms\n");
-            writer.write("Average waiting time for getTopThreeMusicByUser queries: " + getTopThreeMusicByUserWaiting + "ms\n");
+            writer.write("Average turnaround time for getTopThreeMusicByUser queries: " + getTopThreeMusicByUserTurnaround / sentQueries + "ms\n");
+            writer.write("Average execution time for getTopThreeMusicByUser queries: " + getTopThreeMusicByUserExecution / sentQueries + "ms\n");
+            writer.write("Average waiting time for getTopThreeMusicByUser queries: " + getTopThreeMusicByUserWaiting / sentQueries + "ms\n");
 
             writer.close();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
