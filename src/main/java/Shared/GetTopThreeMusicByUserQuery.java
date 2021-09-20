@@ -75,11 +75,14 @@ public class GetTopThreeMusicByUserQuery extends Query {
         String[] topThreeGenres = new String[3];
 
         // Find the top three most played musics (in descending order)
-        for (int i = 0; i < Math.min(3, playCounts.size()); i++) {
+        for (int i = 0; i < 3; i++) {
             Map.Entry<MusicProfile, Integer> topEntry = null;
             for (Map.Entry<MusicProfile, Integer> entry : playCounts.entrySet()) {
                 topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ? entry : topEntry;
             }
+            if (topEntry == null)
+                break;
+
             playCounts.remove(topEntry.getKey());
 
             topThreeProfiles[i] = topEntry.getKey();

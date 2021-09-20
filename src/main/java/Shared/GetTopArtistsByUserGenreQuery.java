@@ -96,11 +96,6 @@ public class GetTopArtistsByUserGenreQuery extends Query {
             topThreePlayCounts[i] = topEntry.getValue();
         }
 
-        System.out.println(topThreeProfiles[0]);
-        System.out.println(topThreeProfiles[1]);
-        System.out.println(topThreeProfiles[2]);
-
-
         // Add the result to the query
         int resultIdx = 0;
         for (int i = 0; i < 3; i++) {

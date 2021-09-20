@@ -154,11 +154,14 @@ public class Server implements ServerInterface {
         }
 
         // Find the top 3 most played music entries
-        for (int i = 0; i < Math.min(3, playCounts.size()); i++) {
+        for (int i = 0; i < 3; i++) {
             Map.Entry<MusicProfile, Integer> topEntry = null;
             for (Map.Entry<MusicProfile, Integer> entry : playCounts.entrySet()) {
                 topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ? entry : topEntry;
             }
+            if (topEntry == null)
+                break;
+
             playCounts.remove(topEntry.getKey());
 
             query.result[i] = topEntry.getKey().musicID;
@@ -195,11 +198,14 @@ public class Server implements ServerInterface {
         int resultIdx = 0;
 
         // Find the most played music profiles in the cache for this genre and user, in order from most played to least
-        for (int i = 0; i < Math.min(3, musicMap.size()); i++) {
+        for (int i = 0; i < 3; i++) {
             Map.Entry<MusicProfile, Integer> topEntry = null;
             for (Map.Entry<MusicProfile, Integer> entry : musicMap.entrySet()) {
                 topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ? entry : topEntry;
             }
+            if (topEntry == null)
+                break;
+
             musicMap.remove(topEntry.getKey());
 
             // Add the artists to the query result
