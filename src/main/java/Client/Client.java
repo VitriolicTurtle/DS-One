@@ -28,6 +28,7 @@ public class Client implements ClientCallbackInterface, Serializable {
     private int sentQueries = 0;
     private int finishedCount = -1;
 
+
     private ProxyServerInterface proxyServer = null;
     private ServerInterface server = null;
 
