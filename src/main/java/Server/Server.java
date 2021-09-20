@@ -281,13 +281,13 @@ public class Server implements ServerInterface {
         UserProfile userProfile = null;
 
         // Check whether the user has a user profile in the cache already
-        for (UserProfile user : userCache) {
+        for (UserProfile user : getTopThreeMusicByUserCache) {
             if (user.userID.equals(userID)) {
                 userProfile = user;
 
                 // We also remove the user profile found from the cache since it will be re-added into the
                 // most recent position
-                userCache.remove(userProfile);
+                getTopThreeMusicByUserCache.remove(userProfile);
                 break;
             }
         }
@@ -322,10 +322,10 @@ public class Server implements ServerInterface {
         }
 
         // If the userCache is at max capacity, we remove the oldest entry
-        if (userCache.size() >= 100)
-            userCache.remove();
+        if (getTopThreeMusicByUserCache.size() >= 100)
+            getTopThreeMusicByUserCache.remove();
 
-        userCache.add(userProfile);
+        getTopThreeMusicByUserCache.add(userProfile);
     }
 
     public void cacheGetTopArtistsByUserGenre(
