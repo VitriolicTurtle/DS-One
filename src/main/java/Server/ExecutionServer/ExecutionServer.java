@@ -120,6 +120,7 @@ public class ExecutionServer implements ExecutionServerInterface {
 
             // Send the query (that is now populated with a response) back to the client
             cache.update(query);
+            System.out.println("server_" + serverZone + " sending response to client for query: " + query.getHashString());
             client.sendQueryResponse(query);
 
         } catch (Exception e) {

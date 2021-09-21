@@ -67,7 +67,7 @@ public class RunClients {
         // This variable must be identical in RunServers and RunClients
         int startPort = 2400;
 
-        boolean clientCache = false;
+        boolean clientCache = true;
 
         RunClients client = new RunClients();
         client.runClient(startPort, clientCache);

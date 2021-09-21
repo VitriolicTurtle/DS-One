@@ -115,7 +115,7 @@ public class ExecutionServerCache {
         cache.remove(key);
         cache.put(key, response);
 
-        //System.err.println("Cache hit for: " + query.getHashString() + ". Cache size=" + cache.size());
+        System.err.println("Server-side cache hit for: " + query.getHashString() + ". Cache size=" + cache.size());
         return response;
     }
 

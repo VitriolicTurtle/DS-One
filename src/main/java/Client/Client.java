@@ -20,12 +20,13 @@ public class Client implements ClientCallbackInterface, Serializable {
     private int clientNumber;
     private Registry registry = null;
 
-    private boolean clientCache;
-    public ClientCache cache = new ClientCache();
+    private LinkedList<Query> responses;
 
-    private LinkedList<Query> responses = new LinkedList<>();
+    private boolean clientCache;
+    public ClientCache cache;
 
     private int sentQueries = 0;
+    private int responsesReceived = 0;
     private int finishedCount = -1;
 
     private ProxyServerInterface proxyServer = null;
@@ -44,6 +45,11 @@ public class Client implements ClientCallbackInterface, Serializable {
      */
     public Client(int clientNumber, int port, boolean clientCache) {
         this.clientNumber = clientNumber;
+        this.responses = new LinkedList<>();
+
+        this.clientCache = clientCache;
+        this.cache = new ClientCache(100, 250);
+
         startClient(port);
     }
 
@@ -84,20 +90,22 @@ public class Client implements ClientCallbackInterface, Serializable {
     public void sendQueryResponse(Query response) throws RemoteException {
         lock.lock();
 
-        System.out.println("Client received query response.");
-        System.out.println("Received responses: " + responses.size());
+        responsesReceived++;
         acceptResponse(response);
+        System.out.println("Client received query response for query: " + response.getHashString() + ". Received responses: " + responsesReceived);
 
         lock.unlock();
     }
 
     private void acceptResponse(Query response) {
+        cache.update(response);
         responses.add(response);
 
         // Set the final event timestamp representing that the query has been returned to the client object
         response.timeStamps[4] = System.currentTimeMillis();
+        System.out.println("Query response added. Queries completed: " + responses.size());
 
-        if (finishedCount != -1 && responses.size() == finishedCount) {
+        if (responses.size() == 272) {
             conclude();
         }
     }
@@ -146,7 +154,12 @@ public class Client implements ClientCallbackInterface, Serializable {
 
             boolean cacheHit = false;
             if (clientCache) {
-                ;
+                Response response = fetchCache(query);
+
+                if (response != null) {
+                    query.response = response;
+                    cacheHit = true;
+                }
             }
 
             if (cacheHit) {
@@ -157,16 +170,21 @@ public class Client implements ClientCallbackInterface, Serializable {
             } else {
                 // Finally, set the timestamp for when the query is sent from the client, then send it to the server
                 query.timeStamps[0] = System.currentTimeMillis();
-                server.sendQuery(query);
-            }
-            sentQueries++;
 
-            System.out.println("Client sent query. Number of sent queries: " + sentQueries);
+                sentQueries++;
+                System.out.println("Client sending query: " + query.getHashString() + ". Number of queries sent: " + sentQueries);
+                server.sendQuery(query);
+
+            }
         } catch (Exception e) {
             System.out.println("\nError:\n" + e);
             System.out.println("\nSomething went wrong when trying to send query from client_" + clientNumber + " to " + server + ".");
             System.exit(1);
         }
+    }
+
+    private Response fetchCache(Query query) {
+        return cache.fetch(query);
     }
 
     private void conclude() {
@@ -175,6 +193,8 @@ public class Client implements ClientCallbackInterface, Serializable {
             //File file = new File("src\\main\\java\\Client\\Outputs\\output.txt"); // WINDOWS
             File file = new File("src/main/java/Client/Outputs/output.txt"); // MAC
             FileWriter writer = new FileWriter(file);
+
+            int numQueriesCompleted = responses.size();
 
             while (responses.size() != 0) {
                 Query response = responses.remove();
@@ -195,21 +215,21 @@ public class Client implements ClientCallbackInterface, Serializable {
             }
 
             // Write the average times to file
-            writer.write("\nAverage turnaround time for getTimesPlayedByUser queries: " + times.get("GetTimesPlayedByUserTurnaround") / sentQueries + "ms\n");
-            writer.write("Average execution time for getTimesPlayedByUser queries: " + times.get("GetTimesPlayedByUserExecution") / sentQueries + "ms\n");
-            writer.write("Average waiting time for getTimesPlayedByUser queries: " + times.get("GetTimesPlayedByUserWaiting") / sentQueries + "ms\n\n");
+            writer.write("\nAverage turnaround time for getTimesPlayedByUser queries: " + times.get("GetTimesPlayedByUserTurnaround") / numQueriesCompleted + "ms\n");
+            writer.write("Average execution time for getTimesPlayedByUser queries: " + times.get("GetTimesPlayedByUserExecution") / numQueriesCompleted + "ms\n");
+            writer.write("Average waiting time for getTimesPlayedByUser queries: " + times.get("GetTimesPlayedByUserWaiting") / numQueriesCompleted + "ms\n\n");
 
-            writer.write("Average turnaround time for getTimesPlayed queries: " + times.get("GetTimesPlayedTurnaround") / sentQueries + "ms\n");
-            writer.write("Average execution time for getTimesPlayed queries: " + times.get("GetTimesPlayedExecution") / sentQueries + "ms\n");
-            writer.write("Average waiting time for getTimesPlayed queries: " + times.get("GetTimesPlayedWaiting") / sentQueries + "ms\n\n");
+            writer.write("Average turnaround time for getTimesPlayed queries: " + times.get("GetTimesPlayedTurnaround") / numQueriesCompleted + "ms\n");
+            writer.write("Average execution time for getTimesPlayed queries: " + times.get("GetTimesPlayedExecution") / numQueriesCompleted + "ms\n");
+            writer.write("Average waiting time for getTimesPlayed queries: " + times.get("GetTimesPlayedWaiting") / numQueriesCompleted + "ms\n\n");
 
-            writer.write("Average turnaround time for getTopArtistsByUserGenre queries: " + times.get("GetTopArtistsByUserGenreTurnaround") / sentQueries + "ms\n");
-            writer.write("Average execution time for getTopArtistsByUserGenre queries: " + times.get("GetTopArtistsByUserGenreExecution") / sentQueries + "ms\n");
-            writer.write("Average waiting time for getTopArtistsByUserGenre queries: " + times.get("GetTopArtistsByUserGenreWaiting") / sentQueries + "ms\n\n");
+            writer.write("Average turnaround time for getTopArtistsByUserGenre queries: " + times.get("GetTopArtistsByUserGenreTurnaround") / numQueriesCompleted + "ms\n");
+            writer.write("Average execution time for getTopArtistsByUserGenre queries: " + times.get("GetTopArtistsByUserGenreExecution") / numQueriesCompleted + "ms\n");
+            writer.write("Average waiting time for getTopArtistsByUserGenre queries: " + times.get("GetTopArtistsByUserGenreWaiting") / numQueriesCompleted + "ms\n\n");
 
-            writer.write("Average turnaround time for getTopThreeMusicByUser queries: " + times.get("GetTopThreeMusicByUserTurnaround") / sentQueries + "ms\n");
-            writer.write("Average execution time for getTopThreeMusicByUser queries: " + times.get("GetTopThreeMusicByUserExecution") / sentQueries + "ms\n");
-            writer.write("Average waiting time for getTopThreeMusicByUser queries: " + times.get("GetTopThreeMusicByUserWaiting") / sentQueries + "ms\n");
+            writer.write("Average turnaround time for getTopThreeMusicByUser queries: " + times.get("GetTopThreeMusicByUserTurnaround") / numQueriesCompleted + "ms\n");
+            writer.write("Average execution time for getTopThreeMusicByUser queries: " + times.get("GetTopThreeMusicByUserExecution") / numQueriesCompleted + "ms\n");
+            writer.write("Average waiting time for getTopThreeMusicByUser queries: " + times.get("GetTopThreeMusicByUserWaiting") / numQueriesCompleted + "ms\n");
 
             writer.close();
         } catch (IOException e) {
