@@ -12,9 +12,6 @@ public class GetTimesPlayedQuery extends Query {
     // Query arguments
     public String musicID;
 
-    // Query results
-    public int result;
-
     /**
      * GetTimesPlayed query constructor. The client zone and number of the client sending the query,
      * as well as the arguments for the query, are all determined upon creating the query object.
@@ -30,7 +27,9 @@ public class GetTimesPlayedQuery extends Query {
 
     @Override
     public void run(String filename, ExecutionServer server) {
-        int counter = 0;
+        response = new Response();
+
+        int count = 0;
 
         Scanner scanner = null;
         try {
@@ -48,14 +47,27 @@ public class GetTimesPlayedQuery extends Query {
                 continue;
 
             String[] data = line.split(",");
-            counter += Integer.parseInt(data[data.length - 1]);
+            count += Integer.parseInt(data[data.length - 1]);
         }
-        result = counter;
+
+        response.musicProfile = new MusicProfile();
+        response.musicProfile.musicID = musicID;
+        response.plays = count;
+    }
+
+    @Override
+    public String getQueryString() {
+        return "GetTimesPlayed";
+    }
+
+    @Override
+    public String getHashString() {
+        return "GetTimesPlayed(" + musicID + ")";
     }
 
     @Override
     public String toString() {
-        String s = "Music '" + musicID + "' was played " + result + " times. ";
+        String s = "Music '" + musicID + "' was played " + response.plays + " times. ";
         s += "(Turnaround time: " + (timeStamps[4] - timeStamps[0]) + "ms, ";
         s += "execution time: " + (timeStamps[3] - timeStamps[2]) + "ms, ";
         s += "waiting time: " + (timeStamps[2] - timeStamps[1]) + "ms, ";

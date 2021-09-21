@@ -31,6 +31,8 @@ public class GetTopThreeMusicByUserQuery extends Query {
 
     @Override
     public void run(String filename, ExecutionServer server) {
+        response = new Response();
+
         LinkedHashMap<MusicProfile, Integer> playCounts = new LinkedHashMap<>();
         LinkedHashMap<MusicProfile, String> genres = new LinkedHashMap<>();
 
@@ -61,7 +63,9 @@ public class GetTopThreeMusicByUserQuery extends Query {
             }
 
             // Create a music profile for the music
-            MusicProfile musicProfile = new MusicProfile(data[0], artists);
+            MusicProfile musicProfile = new MusicProfile();
+            musicProfile.musicID = data[0];
+            musicProfile.artists = artists;
             int plays = Integer.parseInt(data[data.length - 1]);
             String genre = data[data.length - 3];
 
@@ -88,15 +92,43 @@ public class GetTopThreeMusicByUserQuery extends Query {
             topThreeProfiles[i] = topEntry.getKey();
             topThreePlayCounts[i] = topEntry.getValue();
             topThreeGenres[i] = genres.get(topEntry.getKey());
-
-            // Add the found musicID to the result
-            result[i] = topEntry.getKey().musicID;
         }
     }
 
     @Override
+    public String getQueryString() {
+        return "GetTopThreeMusicByUser";
+    }
+
+    @Override
+    public String getHashString() {
+        return "GetTopThreeMusicByUser(" + userID + ")";
+    }
+
+    @Override
     public String toString() {
-        String s = "Top 3 musics for user '" + userID + "' were [" + result[0] + ", " + result[1] + ", " + result[2] + "]. ";
+        //String s = "Top 3 musics for user '" + userID + "' were [" + result[0] + ", " + result[1] + ", " + result[2] + "]. ";
+        String s = "Top 3 musics for user '" + userID + "' were [";
+        int count = 0;
+
+        for (String genre : response.userProfile.favoriteMusics.keySet()) {
+            for (MusicProfile musicProfile : response.userProfile.favoriteMusics.get(genre)) {
+                for (String artist : musicProfile.artists) {
+                    s += artist;
+                    count++;
+                    if (count < 3)
+                        s += ", ";
+                }
+            }
+        }
+        while (count < 3) {
+            s += "null";
+            count++;
+            if (count < 3)
+                s += ", ";
+        }
+        s += "]. ";
+
         s += "(Turnaround time: " + (timeStamps[4] - timeStamps[0]) + "ms, ";
         s += "execution time: " + (timeStamps[3] - timeStamps[2]) + "ms, ";
         s += "waiting time: " + (timeStamps[2] - timeStamps[1]) + "ms, ";

@@ -62,6 +62,9 @@ public abstract class Query implements Serializable {
 
     public abstract void run(String filename, ExecutionServer server);
 
+    public abstract String getQueryString();
+    public abstract String getHashString();
+
     @Override
     public String toString() {
         return "Abstract query object";

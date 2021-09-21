@@ -34,19 +34,8 @@ public class Client implements ClientCallbackInterface, Serializable {
     // Used to make sure only one server can send back a response at a time
     Lock lock = new ReentrantLock();
 
-    // Variables to store average times for the different query-types
-    long getTimesPlayedByUserTurnaround = 0;
-    long getTimesPlayedByUserExecution = 0;
-    long getTimesPlayedByUserWaiting = 0;
-    long getTimesPlayedTurnaround = 0;
-    long getTimesPlayedExecution = 0;
-    long getTimesPlayedWaiting = 0;
-    long getTopArtistsByUserGenreTurnaround = 0;
-    long getTopArtistsByUserGenreExecution = 0;
-    long getTopArtistsByUserGenreWaiting = 0;
-    long getTopThreeMusicByUserTurnaround = 0;
-    long getTopThreeMusicByUserExecution = 0;
-    long getTopThreeMusicByUserWaiting = 0;
+    // Map to store total times for the different query-types
+    private HashMap<String, Long> times = new HashMap<String, Long>();
 
     /**
      * Constructor for client.
@@ -196,41 +185,31 @@ public class Client implements ClientCallbackInterface, Serializable {
                 long execution = response.timeStamps[3] - response.timeStamps[2];
                 long waiting = response.timeStamps[2] - response.timeStamps[1];
 
-                if (response instanceof GetTimesPlayedByUserQuery) {
-                    getTimesPlayedByUserTurnaround += turnaround;
-                    getTimesPlayedByUserExecution += execution;
-                    getTimesPlayedByUserWaiting += waiting;
-                } else if (response instanceof GetTimesPlayedQuery) {
-                    getTimesPlayedTurnaround += turnaround;
-                    getTimesPlayedExecution += execution;
-                    getTimesPlayedWaiting += waiting;
-                } else if (response instanceof GetTopArtistsByUserGenreQuery) {
-                    getTopArtistsByUserGenreTurnaround += turnaround;
-                    getTopArtistsByUserGenreExecution += execution;
-                    getTopArtistsByUserGenreWaiting += waiting;
-                } else if (response instanceof GetTopThreeMusicByUserQuery) {
-                    getTopThreeMusicByUserTurnaround += turnaround;
-                    getTopThreeMusicByUserExecution += execution;
-                    getTopThreeMusicByUserWaiting += waiting;
-                }
+                String turnaroundKey = response.getQueryString() + "Turnaround";
+                String executionKey = response.getQueryString() + "Execution";
+                String waitingKey = response.getQueryString() + "Waiting";
+
+                times.put(turnaroundKey, times.containsKey(turnaroundKey) ? times.get(turnaroundKey) + turnaround : turnaround);
+                times.put(executionKey, times.containsKey(executionKey) ? times.get(executionKey) + execution : execution);
+                times.put(waitingKey, times.containsKey(waitingKey) ? times.get(waitingKey) + waiting : waiting);
             }
 
             // Write the average times to file
-            writer.write("\nAverage turnaround time for getTimesPlayedByUser queries: " + getTimesPlayedByUserTurnaround / sentQueries + "ms\n");
-            writer.write("Average execution time for getTimesPlayedByUser queries: " + getTimesPlayedByUserExecution / sentQueries + "ms\n");
-            writer.write("Average waiting time for getTimesPlayedByUser queries: " + getTimesPlayedByUserWaiting / sentQueries + "ms\n\n");
+            writer.write("\nAverage turnaround time for getTimesPlayedByUser queries: " + times.get("GetTimesPlayedByUserTurnaround") / sentQueries + "ms\n");
+            writer.write("Average execution time for getTimesPlayedByUser queries: " + times.get("GetTimesPlayedByUserExecution") / sentQueries + "ms\n");
+            writer.write("Average waiting time for getTimesPlayedByUser queries: " + times.get("GetTimesPlayedByUserWaiting") / sentQueries + "ms\n\n");
 
-            writer.write("Average turnaround time for getTimesPlayed queries: " + getTimesPlayedTurnaround / sentQueries + "ms\n");
-            writer.write("Average execution time for getTimesPlayed queries: " + getTimesPlayedExecution / sentQueries + "ms\n");
-            writer.write("Average waiting time for getTimesPlayed queries: " + getTimesPlayedWaiting / sentQueries + "ms\n\n");
+            writer.write("Average turnaround time for getTimesPlayed queries: " + times.get("GetTimesPlayedTurnaround") / sentQueries + "ms\n");
+            writer.write("Average execution time for getTimesPlayed queries: " + times.get("GetTimesPlayedExecution") / sentQueries + "ms\n");
+            writer.write("Average waiting time for getTimesPlayed queries: " + times.get("GetTimesPlayedWaiting") / sentQueries + "ms\n\n");
 
-            writer.write("Average turnaround time for getTopArtistsByUserGenre queries: " + getTopArtistsByUserGenreTurnaround / sentQueries + "ms\n");
-            writer.write("Average execution time for getTopArtistsByUserGenre queries: " + getTopArtistsByUserGenreExecution / sentQueries + "ms\n");
-            writer.write("Average waiting time for getTopArtistsByUserGenre queries: " + getTopArtistsByUserGenreWaiting / sentQueries + "ms\n\n");
+            writer.write("Average turnaround time for getTopArtistsByUserGenre queries: " + times.get("GetTopArtistsByUserGenreTurnaround") / sentQueries + "ms\n");
+            writer.write("Average execution time for getTopArtistsByUserGenre queries: " + times.get("GetTopArtistsByUserGenreExecution") / sentQueries + "ms\n");
+            writer.write("Average waiting time for getTopArtistsByUserGenre queries: " + times.get("GetTopArtistsByUserGenreWaiting") / sentQueries + "ms\n\n");
 
-            writer.write("Average turnaround time for getTopThreeMusicByUser queries: " + getTopThreeMusicByUserTurnaround / sentQueries + "ms\n");
-            writer.write("Average execution time for getTopThreeMusicByUser queries: " + getTopThreeMusicByUserExecution / sentQueries + "ms\n");
-            writer.write("Average waiting time for getTopThreeMusicByUser queries: " + getTopThreeMusicByUserWaiting / sentQueries + "ms\n");
+            writer.write("Average turnaround time for getTopThreeMusicByUser queries: " + times.get("GetTopThreeMusicByUserTurnaround") / sentQueries + "ms\n");
+            writer.write("Average execution time for getTopThreeMusicByUser queries: " + times.get("GetTopThreeMusicByUserExecution") / sentQueries + "ms\n");
+            writer.write("Average waiting time for getTopThreeMusicByUser queries: " + times.get("GetTopThreeMusicByUserWaiting") / sentQueries + "ms\n");
 
             writer.close();
         } catch (IOException e) {

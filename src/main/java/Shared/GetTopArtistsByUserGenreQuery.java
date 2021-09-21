@@ -13,9 +13,6 @@ public class GetTopArtistsByUserGenreQuery extends Query {
     public String userID;
     public String genre;
 
-    // Query results
-    public String[] result;
-
     /**
      * GetTopArtistsByUser query constructor. The client zone and number of the client sending the query,
      * as well as the arguments for the query, are all determined upon creating the query object.
@@ -29,7 +26,6 @@ public class GetTopArtistsByUserGenreQuery extends Query {
         super(clientZone, clientNumber);
         this.userID = userID;
         this.genre = genre;
-        this.result = new String[3];
     }
 
     /**
@@ -39,6 +35,7 @@ public class GetTopArtistsByUserGenreQuery extends Query {
      */
     @Override
     public void run(String filename, ExecutionServer server) {
+        response = new Response();
         HashMap<MusicProfile, Integer> playCounts = new HashMap<MusicProfile, Integer>();
 
         Scanner scanner = null;
@@ -66,7 +63,9 @@ public class GetTopArtistsByUserGenreQuery extends Query {
                 artists.add(data[i]);
             }
 
-            MusicProfile musicProfile = new MusicProfile(data[0], artists);
+            MusicProfile musicProfile = new MusicProfile();
+            musicProfile.musicID = data[0];
+            musicProfile.artists = artists;
             int plays = Integer.parseInt(data[data.length - 1]);
 
             // Add the music profile and its plays
@@ -77,8 +76,8 @@ public class GetTopArtistsByUserGenreQuery extends Query {
         }
 
         // Find the top three music profiles (based off of play counts)
-        MusicProfile[] topThreeProfiles = new MusicProfile[3];
-        int[] topThreePlayCounts = new int[3];
+        ArrayList<MusicProfile> topProfiles = new ArrayList<>();
+        int foundArtists = 0;
 
         for (int i = 0; i < 3; i++) {
             Map.Entry<MusicProfile, Integer> topEntry = null;
@@ -89,30 +88,49 @@ public class GetTopArtistsByUserGenreQuery extends Query {
                 break;
 
             playCounts.remove(topEntry.getKey());
+            topProfiles.add(topEntry.getKey());
+            foundArtists += topEntry.getKey().artists.size();
 
-            topThreeProfiles[i] = topEntry.getKey();
-            topThreePlayCounts[i] = topEntry.getValue();
-        }
-
-        // Add the result to the query
-        int resultIdx = 0;
-        for (int i = 0; i < 3; i++) {
-            if (topThreeProfiles[i] == null || resultIdx >= 3)
+            if (foundArtists >= 3)
                 break;
-
-            for (String artist : topThreeProfiles[i].artists) {
-                result[resultIdx] = artist;
-                resultIdx++;
-
-                if (resultIdx >= 3)
-                    break;
-            }
         }
+
+        response.userProfile = new UserProfile();
+        response.userProfile.userID = userID;
+        response.userProfile.favoriteMusics.put(genre, topProfiles);
+    }
+
+    @Override
+    public String getQueryString() {
+        return "GetTopArtistsByUserGenre";
+    }
+
+    @Override
+    public String getHashString() {
+        return "GetTopArtistsByUserGenre(" + userID + "," + genre + ")";
     }
 
     @Override
     public String toString() {
-        String s = "Top 3 artists for genre '" + genre + "' and user '" + userID + "' were [" + result[0] + ", " + result[1] + ", " + result[2] + "]. ";
+        String s = "Top 3 artists for genre '" + genre + "' and user '" + userID + "' were [";
+        int count = 0;
+
+        for (int i = 0; i < Math.min(3, response.userProfile.favoriteMusics.get(genre).size()); i++) {
+            for (String artist : response.userProfile.favoriteMusics.get(genre).get(i).artists) {
+                s += artist;
+                count ++;
+                if (count < 3)
+                    s += ", ";
+            }
+        }
+        while (count < 3) {
+            s += "null";
+            count++;
+            if (count < 3)
+                s += ", ";
+        }
+
+        s += "]. ";
         s += "(Turnaround time: " + (timeStamps[4] - timeStamps[0]) + "ms, ";
         s += "execution time: " + (timeStamps[3] - timeStamps[2]) + "ms, ";
         s += "waiting time: " + (timeStamps[2] - timeStamps[1]) + "ms, ";

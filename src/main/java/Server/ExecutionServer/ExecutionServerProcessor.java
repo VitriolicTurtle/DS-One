@@ -40,6 +40,7 @@ public class ExecutionServerProcessor implements Runnable {
     @Override
     public void run() {
         Query currentQuery = null;
+
         while (true) {
             currentQuery = this.server.fetchQuery();
 
@@ -59,7 +60,12 @@ public class ExecutionServerProcessor implements Runnable {
             // Check if we can resolve the query from cache
             boolean cacheHit = false;
             if (serverCaching) {
-                ;
+                Response response = server.fetchCache(currentQuery);
+
+                if (response != null) {
+                    currentQuery.response = response;
+                    cacheHit = true;
+                }
             }
 
             // Run the query. This will populate the query result inside the query object

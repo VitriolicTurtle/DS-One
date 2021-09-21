@@ -16,9 +16,9 @@ public class ExecutionServer implements ExecutionServerInterface {
     private int port;
 
     private Boolean serverCaching;
-    public ExecutionServerCache cache = new ExecutionServerCache();
+    public ExecutionServerCache cache;
 
-    ConcurrentLinkedQueue<Query> queue = new ConcurrentLinkedQueue<>();
+    ConcurrentLinkedQueue<Query> queue;
 
     private final String dataFilename = "src/main/java/Server/Data/dataset.csv"; // MAC
 
@@ -32,9 +32,9 @@ public class ExecutionServer implements ExecutionServerInterface {
         this.registry = registry;
         this.serverZone = serverZone;
         this.port = port;
-
+        this.queue = new ConcurrentLinkedQueue<>();
         this.serverCaching = serverCaching;
-        this.cache = new ExecutionServerCache();
+        this.cache = new ExecutionServerCache(100, 100);
 
         startServer();
         startProcessingThread();
@@ -56,6 +56,10 @@ public class ExecutionServer implements ExecutionServerInterface {
             System.exit(1);
         }
         System.out.println("server_" + serverZone + " has started successfully.");
+    }
+
+    public Response fetchCache(Query query) {
+        return cache.fetch(query);
     }
 
     /**
@@ -115,6 +119,7 @@ public class ExecutionServer implements ExecutionServerInterface {
             ClientCallbackInterface client = (ClientCallbackInterface) registry.lookup("client_" + query.getClientNumber());
 
             // Send the query (that is now populated with a response) back to the client
+            cache.update(query);
             client.sendQueryResponse(query);
 
         } catch (Exception e) {
