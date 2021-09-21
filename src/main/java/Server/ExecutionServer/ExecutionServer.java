@@ -116,9 +116,11 @@ public class ExecutionServer implements ExecutionServerInterface {
 
             // Send the query (that is now populated with a response) back to the client
             client.sendQueryResponse(query);
+
         } catch (Exception e) {
             System.out.println("\nError:\n" + e);
             System.out.println("Something went wrong when responding to client_" + query.getClientNumber() + " from server_" + serverZone);
+            e.printStackTrace();
             System.exit(1);
         }
     }
