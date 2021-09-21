@@ -15,9 +15,6 @@ public class GetTimesPlayedQuery extends Query {
     // Query results
     public int result;
 
-    // Cache variables
-    public ArrayList<String> artists;
-
     /**
      * GetTimesPlayed query constructor. The client zone and number of the client sending the query,
      * as well as the arguments for the query, are all determined upon creating the query object.
@@ -34,8 +31,6 @@ public class GetTimesPlayedQuery extends Query {
     @Override
     public void run(String filename, ExecutionServer server) {
         int counter = 0;
-        artists = new ArrayList<>();
-        boolean foundArtists = false;
 
         Scanner scanner = null;
         try {
@@ -49,25 +44,13 @@ public class GetTimesPlayedQuery extends Query {
         //  Scan trough entire dataset and count amount of times listened to song by userID.
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
-            if (!line.contains(musicID)) { continue; }
+            if (!line.contains(musicID))
+                continue;
 
             String[] data = line.split(",");
             counter += Integer.parseInt(data[data.length - 1]);
-
-            if (!foundArtists) {
-                for (int i = 1; i < data.length; i++) {
-                    if (!data[i].startsWith("A")) { break; }
-                    artists.add(data[i]);
-                }
-                foundArtists = true;
-            }
         }
         result = counter;
-
-        // Cache the query result
-        server.cacheGetTimesPlayed(musicID, artists, result);
-
-        containsCacheData = true;
     }
 
     @Override

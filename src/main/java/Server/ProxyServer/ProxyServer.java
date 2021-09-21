@@ -1,6 +1,4 @@
-package Server;
-
-import Shared.ServerAddress;
+package Server.ProxyServer;
 
 import Server.ExecutionServer.ExecutionServerInterface;
 
@@ -51,9 +49,8 @@ public class ProxyServer extends Thread implements ProxyServerInterface{
             registry = LocateRegistry.getRegistry("localhost", port - 1);
 
             // Lookup the 5 processing servers
-            for (int i = 0; i < numServers; i++) {
-                servers[i] = (ServerInterface) registry.lookup("server_" + i);
-            }
+            for (int i = 0; i < numServers; i++)
+                servers[i] = (ExecutionServerInterface) registry.lookup("server_" + i);
 
             // Bind the proxy-server to the registry
             registry.bind("proxy-server", this);
@@ -67,7 +64,6 @@ public class ProxyServer extends Thread implements ProxyServerInterface{
 
     private void updateAssignmentCount(int zone) {
         serverAssignmentCounts[zone]++;
-
         if (serverAssignmentCounts[zone] >= 10) {
             new Thread(new ProxyServerQueueUpdater(this, zone)).start();
             serverAssignmentCounts[zone] = 0;
@@ -91,16 +87,15 @@ public class ProxyServer extends Thread implements ProxyServerInterface{
      * @throws RemoteException
      */
     @Override
-    public ServerAddress getServerAssignment(int zone) throws RemoteException {
+    public String getServerAssignment(int zone) throws RemoteException {
         if (zone < 0 || zone > 4) {
             System.out.println("\nError:\nInvalid zone number: " + zone + ".");
             System.exit(1);
         }
 
         // Refer client to closest geographically located server if it has capacity
-        if (serverQueuesSizes[zone] < 10) {
-            return new ServerAddress("server_" + zone);
-        }
+        if (serverQueuesSizes[zone] < 10)
+            return "server_" + zone;
 
         // If we are referring the client to one of the geographically neighboring servers
         int neighborServer1 = (zone - 1) % numServers;
@@ -108,22 +103,21 @@ public class ProxyServer extends Thread implements ProxyServerInterface{
         int selectedServer;
 
         // If both of the neighboring servers are also at maximum capacity, we refer the user to the closest server
-        if (serverQueuesSizes[neighborServer1] >= 10 && serverQueuesSizes[neighborServer2] >= 10) {
+        if (serverQueuesSizes[neighborServer1] >= 10 && serverQueuesSizes[neighborServer2] >= 10)
             selectedServer = zone;
-        }
+
         // If both the neighboring servers have equal workloads to each other, we choose one of them at random
-        else if (serverQueuesSizes[neighborServer1] == serverQueuesSizes[neighborServer2]) {
+        else if (serverQueuesSizes[neighborServer1] == serverQueuesSizes[neighborServer2])
             selectedServer = (random.nextBoolean()) ? neighborServer1 : neighborServer2;
-        }
+
         // Otherwise we choose the neighboring server with the lowest workload
-        else {
+        else
             selectedServer = (serverQueuesSizes[neighborServer1] < serverQueuesSizes[neighborServer2]) ? neighborServer1 : neighborServer2;
-        }
 
         // Before returning the server address, we update the server's assignment counter
         updateAssignmentCount(zone);
 
         System.out.println("proxy-server assigned client server: 'server_" + selectedServer + "'.");
-        return new ServerAddress("server_" + selectedServer);
+        return "server_" + selectedServer;
     }
 }

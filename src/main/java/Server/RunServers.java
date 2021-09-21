@@ -35,9 +35,8 @@ public class RunServers {
             registry = LocateRegistry.createRegistry(startPort);
 
             // Start the 5 processing servers and bind them to the registry
-            for (int i = 0; i < numServers; i++) {
-                servers[i] = new Server(registry, i, startPort + 2 + i, serverCaching);
-            }
+            for (int i = 0; i < numServers; i++)
+                servers[i] = new ExecutionServer(registry, i, startPort + 2 + i, serverCaching);
         } catch (Exception e) {
             System.out.println("Error: " + e);
             System.out.println("Something went wrong when trying to set up and run (processing) servers.");

@@ -28,7 +28,6 @@ public class Client implements ClientCallbackInterface, Serializable {
     private int sentQueries = 0;
     private int finishedCount = -1;
 
-
     private ProxyServerInterface proxyServer = null;
     private ExecutionServerInterface server = null;
 
@@ -155,6 +154,7 @@ public class Client implements ClientCallbackInterface, Serializable {
                     System.exit(1);
                 }
             }
+
             boolean cacheHit = false;
             if (clientCache) {
                 ;
@@ -248,10 +248,10 @@ public class Client implements ClientCallbackInterface, Serializable {
     private void getServerAssignment(int zone) {
         try {
             // Ask the proxy-server for a server address
-            ServerAddress response = proxyServer.getServerAssignment(zone);
+            String address = proxyServer.getServerAssignment(zone);
 
             // Lookup the returned server address
-            server = (ServerInterface) registry.lookup(response.address);
+            server = (ExecutionServerInterface) registry.lookup(address);
         } catch (Exception e) {
             System.out.println("\nError:\n" + e);
             System.out.println("\nSomething went wrong when trying to get server assignment in client_" + clientNumber + ".");

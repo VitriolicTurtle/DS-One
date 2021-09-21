@@ -16,10 +16,6 @@ public class GetTopArtistsByUserGenreQuery extends Query {
     // Query results
     public String[] result;
 
-    // Cache variables
-    public MusicProfile[] topThreeProfiles;
-    public int[] topThreePlayCounts;
-
     /**
      * GetTopArtistsByUser query constructor. The client zone and number of the client sending the query,
      * as well as the arguments for the query, are all determined upon creating the query object.
@@ -74,25 +70,24 @@ public class GetTopArtistsByUserGenreQuery extends Query {
             int plays = Integer.parseInt(data[data.length - 1]);
 
             // Add the music profile and its plays
-            if (playCounts.containsKey(musicProfile)) {
+            if (playCounts.containsKey(musicProfile))
                 playCounts.put(musicProfile, playCounts.get(musicProfile) + plays);
-            } else {
+            else
                 playCounts.put(musicProfile, plays);
-            }
         }
 
         // Find the top three music profiles (based off of play counts)
-        topThreeProfiles = new MusicProfile[3];
-        topThreePlayCounts = new int[3];
+        MusicProfile[] topThreeProfiles = new MusicProfile[3];
+        int[] topThreePlayCounts = new int[3];
 
         for (int i = 0; i < 3; i++) {
             Map.Entry<MusicProfile, Integer> topEntry = null;
-            for (Map.Entry<MusicProfile, Integer> entry : playCounts.entrySet()) {
+            for (Map.Entry<MusicProfile, Integer> entry : playCounts.entrySet())
                 topEntry = (topEntry == null || entry.getValue().compareTo(topEntry.getValue()) > 0) ? entry : topEntry;
-            }
-            if (topEntry == null) {
+
+            if (topEntry == null)
                 break;
-            }
+
             playCounts.remove(topEntry.getKey());
 
             topThreeProfiles[i] = topEntry.getKey();
@@ -113,11 +108,6 @@ public class GetTopArtistsByUserGenreQuery extends Query {
                     break;
             }
         }
-
-        // Cache the query result
-        server.cacheGetTopArtistsByUserGenre(userID, genre, topThreeProfiles, topThreePlayCounts);
-
-        containsCacheData = true;
     }
 
     @Override

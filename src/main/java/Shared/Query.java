@@ -14,12 +14,6 @@ public abstract class Query implements Serializable {
     // Which server is processing the query
     public int processingServer;
 
-    // Variable to store the cache generated for this query
-    public UserProfile cache = null;
-
-    // Does the query object contain cache data
-    public boolean containsCacheData = false;
-
     /**
      * Used to store the following timestamps in the following indices
      * idx - timestamp

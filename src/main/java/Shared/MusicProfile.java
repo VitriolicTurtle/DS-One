@@ -15,9 +15,8 @@ public class MusicProfile implements Serializable {
     @Override
     public String toString() {
         String s = "[musicID=" + musicID + ", artists=( ";
-        for (String artist : artists) {
+        for (String artist : artists)
             s += artist + " ";
-        }
         s += ")]";
         return s;
     }

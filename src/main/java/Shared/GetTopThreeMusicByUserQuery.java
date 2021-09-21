@@ -15,11 +15,6 @@ public class GetTopThreeMusicByUserQuery extends Query {
     // Query results
     public String[] result;
 
-    // Cache variables
-    public MusicProfile[] topThreeProfiles;
-    public int[] topThreePlayCounts;
-    public String[] topThreeGenres;
-
     /**
      * GetTopThreeMusicByUser query constructor. The client zone and number of the client sending the query,
      * as well as the arguments for the query, are all determined upon creating the query object.
@@ -75,9 +70,9 @@ public class GetTopThreeMusicByUserQuery extends Query {
             genres.put(musicProfile, genre);
         }
 
-        topThreeProfiles = new MusicProfile[3];
-        topThreePlayCounts = new int[3];
-        topThreeGenres = new String[3];
+        MusicProfile[] topThreeProfiles = new MusicProfile[3];
+        int[] topThreePlayCounts = new int[3];
+        String[] topThreeGenres = new String[3];
 
         // Find the top three most played musics (in descending order)
         for (int i = 0; i < 3; i++) {
