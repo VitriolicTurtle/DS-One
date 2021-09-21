@@ -93,6 +93,17 @@ public class GetTopThreeMusicByUserQuery extends Query {
             topThreePlayCounts[i] = topEntry.getValue();
             topThreeGenres[i] = genres.get(topEntry.getKey());
         }
+        response.userProfile = new UserProfile();
+        response.userProfile.userID = userID;
+
+        for (int i = 0; i < 3; i++) {
+            if (response.userProfile.favoriteMusics.containsKey(topThreeGenres[i])) {
+                response.userProfile.favoriteMusics.get(topThreeGenres[i]).add(topThreeProfiles[i]);
+            } else {
+                response.userProfile.favoriteMusics.put(topThreeGenres[i], new ArrayList<MusicProfile>());
+                response.userProfile.favoriteMusics.get(topThreeGenres[i]).add(topThreeProfiles[i]);
+            }
+        }
     }
 
     @Override
