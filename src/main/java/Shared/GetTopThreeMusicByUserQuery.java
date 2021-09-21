@@ -3,7 +3,7 @@ package Shared;
 import java.io.File;
 import java.util.*;
 
-import Server.Server;
+import Server.ExecutionServer.ExecutionServer;
 
 /**
  * Class that gives the top 3 musicIDs a users has listened to based on the dataset.csv.
@@ -35,7 +35,7 @@ public class GetTopThreeMusicByUserQuery extends Query {
     }
 
     @Override
-    public void run(String filename, Server server) {
+    public void run(String filename, ExecutionServer server) {
         LinkedHashMap<MusicProfile, Integer> playCounts = new LinkedHashMap<>();
         LinkedHashMap<MusicProfile, String> genres = new LinkedHashMap<>();
 
@@ -97,9 +97,6 @@ public class GetTopThreeMusicByUserQuery extends Query {
             // Add the found musicID to the result
             result[i] = topEntry.getKey().musicID;
         }
-
-        // Cache the query result
-        server.cacheGetTopThreeMusicByUser(userID, topThreeProfiles, topThreePlayCounts, topThreeGenres);
     }
 
     @Override

@@ -1,11 +1,16 @@
 package Server;
 
+import Server.ExecutionServer.ExecutionServer;
+import Server.ExecutionServer.ExecutionServerInterface;
+import Server.ProxyServer.ProxyServer;
+import Server.ProxyServer.ProxyServerInterface;
+
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 public class RunServers {
     Registry registry = null;
-    ServerInterface[] servers;
+    ExecutionServerInterface[] servers;
     ProxyServerInterface proxyServer = null;
 
     /**
@@ -24,7 +29,7 @@ public class RunServers {
     public void createServers(int numServers, int startPort, Boolean serverCaching) {
         System.out.println("Starting " + numServers + " servers ...");
 
-        servers = new Server[numServers];
+        servers = new ExecutionServer[numServers];
         try {
             // Create the registry
             registry = LocateRegistry.createRegistry(startPort);

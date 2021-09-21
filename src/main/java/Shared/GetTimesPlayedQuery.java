@@ -1,10 +1,9 @@
 package Shared;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Scanner;
 
-import Server.Server;
+import Server.ExecutionServer.ExecutionServer;
 
 /**
  * Class that gives the number of times a musicID has been played in total based on the dataset.csv.
@@ -33,7 +32,7 @@ public class GetTimesPlayedQuery extends Query {
     }
 
     @Override
-    public void run(String filename, Server server) {
+    public void run(String filename, ExecutionServer server) {
         int counter = 0;
         artists = new ArrayList<>();
         boolean foundArtists = false;

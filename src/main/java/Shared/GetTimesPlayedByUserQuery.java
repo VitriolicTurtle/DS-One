@@ -1,11 +1,8 @@
 package Shared;
 
-import Server.Server;
+import Server.ExecutionServer.ExecutionServer;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Scanner;
 
 /**
@@ -39,7 +36,7 @@ public class GetTimesPlayedByUserQuery extends Query {
     }
 
     @Override
-    public void run(String filename, Server server) {
+    public void run(String filename, ExecutionServer server) {
         int counter = 0;
         genre = null;
         artists = new ArrayList<>();
@@ -72,12 +69,6 @@ public class GetTimesPlayedByUserQuery extends Query {
             }
         }
         result = counter;
-
-        // Cache the query result (if there were at least one recording of the user playing the music)
-        if (foundArtists)
-            server.cacheGetTimesPlayedByUser(userID, musicID, genre, artists, result);
-
-        containsCacheData = true;
     }
 
     @Override

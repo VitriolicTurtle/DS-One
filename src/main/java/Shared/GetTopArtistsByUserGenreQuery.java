@@ -1,10 +1,9 @@
 package Shared;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.*;
 
-import Server.Server;
+import Server.ExecutionServer.ExecutionServer;
 
 /**
  * Class that gives the top 3 artists a specific user ID has listened to based on genre provided based on dataset.csv.
@@ -43,7 +42,7 @@ public class GetTopArtistsByUserGenreQuery extends Query {
      * @param server
      */
     @Override
-    public void run(String filename, Server server) {
+    public void run(String filename, ExecutionServer server) {
         HashMap<MusicProfile, Integer> playCounts = new HashMap<MusicProfile, Integer>();
 
         Scanner scanner = null;

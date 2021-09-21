@@ -1,4 +1,4 @@
-package Server;
+package Server.ProxyServer;
 
 public class ProxyServerQueueUpdater implements Runnable {
     private ProxyServer proxyServer;

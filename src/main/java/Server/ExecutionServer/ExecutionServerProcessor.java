@@ -1,9 +1,9 @@
-package Server;
+package Server.ExecutionServer;
 
 import Shared.*;
 
-public class ServerQueryProcessor implements Runnable {
-    Server server;
+public class ExecutionServerProcessor implements Runnable {
+    ExecutionServer server;
     String filename;
     Boolean serverCaching;
 
@@ -13,7 +13,7 @@ public class ServerQueryProcessor implements Runnable {
      * @param server:   a reference to the server object containing the query queue.
      * @param filename: the filename of the dataset file necessary to process the query.
      */
-    public ServerQueryProcessor(Server server, String filename, Boolean serverCaching) {
+    public ExecutionServerProcessor(ExecutionServer server, String filename, Boolean serverCaching) {
         this.server = server;
         this.filename = filename;
         this.serverCaching = serverCaching;
@@ -44,9 +44,8 @@ public class ServerQueryProcessor implements Runnable {
             currentQuery = this.server.fetchQuery();
 
             // If no query object was returned, we continue waiting for the queue to fill
-            if (currentQuery == null) {
+            if (currentQuery == null)
                 continue;
-            }
 
             try {
                 checkConnectedZone(currentQuery);
@@ -60,21 +59,12 @@ public class ServerQueryProcessor implements Runnable {
             // Check if we can resolve the query from cache
             boolean cacheHit = false;
             if (serverCaching) {
-                if (currentQuery instanceof GetTimesPlayedByUserQuery) {
-                    cacheHit = server.cache((GetTimesPlayedByUserQuery) currentQuery);
-                } else if (currentQuery instanceof GetTimesPlayedQuery) {
-                    cacheHit = server.cache((GetTimesPlayedQuery) currentQuery);
-                } else if (currentQuery instanceof GetTopArtistsByUserGenreQuery) {
-                    cacheHit = server.cache((GetTopArtistsByUserGenreQuery) currentQuery);
-                } else if (currentQuery instanceof GetTopThreeMusicByUserQuery) {
-                    cacheHit = server.cache((GetTopThreeMusicByUserQuery) currentQuery);
-                }
+                ;
             }
 
             // Run the query. This will populate the query result inside the query object
-            if (!cacheHit) {
+            if (!cacheHit)
                 currentQuery.run(filename, server);
-            }
 
             // Update the timestamp reflecting the event of finishing the query processing
             currentQuery.timeStamps[3] = System.currentTimeMillis();

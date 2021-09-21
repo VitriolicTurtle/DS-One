@@ -2,6 +2,8 @@ package Server;
 
 import Shared.ServerAddress;
 
+import Server.ExecutionServer.ExecutionServerInterface;
+
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -15,7 +17,7 @@ public class ProxyServer extends Thread implements ProxyServerInterface{
     private int port;
     private int numServers;
 
-    private ServerInterface[] servers;
+    private ExecutionServerInterface[] servers;
     private int[] serverQueuesSizes;
     private int[] serverAssignmentCounts;
 
@@ -29,7 +31,7 @@ public class ProxyServer extends Thread implements ProxyServerInterface{
 
         // Set up arrays to store the server references, the servers' workloads and the counters for how many clients
         // have been assigned to each server (in intervals of 10)
-        this.servers = new ServerInterface[numServers];
+        this.servers = new ExecutionServerInterface[numServers];
         this.serverQueuesSizes = new int[numServers];
         this.serverAssignmentCounts = new int[numServers];
 

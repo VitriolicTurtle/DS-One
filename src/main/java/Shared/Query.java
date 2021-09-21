@@ -2,7 +2,7 @@ package Shared;
 
 import java.io.Serializable;
 
-import Server.Server;
+import Server.ExecutionServer.ExecutionServer;
 
 public abstract class Query implements Serializable {
     // Which zone is the client sending the query in
@@ -47,7 +47,7 @@ public abstract class Query implements Serializable {
     public int getClientNumber() { return this.clientNumber; }
     public int getProcessingServer() { return this.processingServer; }
 
-    public abstract void run(String filename, Server server);
+    public abstract void run(String filename, ExecutionServer server);
 
     @Override
     public String toString() {
