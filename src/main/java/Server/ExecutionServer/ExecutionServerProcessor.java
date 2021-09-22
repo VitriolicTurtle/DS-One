@@ -1,6 +1,7 @@
 package Server.ExecutionServer;
 
 import Shared.*;
+import Shared.Query.Query;
 
 public class ExecutionServerProcessor implements Runnable {
     ExecutionServer server;

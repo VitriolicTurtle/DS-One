@@ -46,12 +46,11 @@ public class RunServers {
     }
 
     public static void main(String[] args) {
-        int numServers = 5;
-        Boolean serverCaching = true;
-
         // ports: registry(startPort), proxy-server(startPort + 1), server0-4(startPort + 2 : startPort + 5), client(startPort + 6)
         // This variable must be identical in RunServers and RunClients
         int startPort = 2400;
+        int numServers = 5;
+        Boolean serverCaching = true;
 
         System.out.println("Server caching is " + ((serverCaching) ? "enabled" : "disabled"));
         RunServers startServers = new RunServers();

@@ -1,9 +1,15 @@
-package Shared;
+package Shared.Query;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 
 import Server.ExecutionServer.ExecutionServer;
+import Shared.MusicProfile;
+import Shared.Response;
+import Shared.UserProfile;
 
 /**
  * Class that gives the top 3 artists a specific user ID has listened to based on genre provided based on dataset.csv.

@@ -3,7 +3,7 @@ package Client;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-import Shared.Query;
+import Shared.Query.Query;
 
 /**
  * Interface implemented by the client objects.

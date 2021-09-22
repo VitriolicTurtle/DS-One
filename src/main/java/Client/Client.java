@@ -2,7 +2,12 @@ package Client;
 
 import Server.ProxyServer.ProxyServerInterface;
 import Server.ExecutionServer.ExecutionServerInterface;
-import Shared.*;
+import Shared.Query.Query;
+import Shared.Query.GetTimesPlayedByUserQuery;
+import Shared.Query.GetTimesPlayedQuery;
+import Shared.Query.GetTopArtistsByUserGenreQuery;
+import Shared.Query.GetTopThreeMusicByUserQuery;
+import Shared.Response;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -23,11 +28,11 @@ public class Client implements ClientCallbackInterface, Serializable {
     private LinkedList<Query> responses;
 
     private boolean clientCache;
-    public ClientCache cache;
+    private ClientCache cache;
 
     private int sentQueries = 0;
     private int responsesReceived = 0;
-    private int finishedCount = -1;
+    public int expectedQueries = 0;
 
     private ProxyServerInterface proxyServer = null;
     private ExecutionServerInterface server = null;
@@ -77,10 +82,6 @@ public class Client implements ClientCallbackInterface, Serializable {
         System.out.println("client_" + clientNumber + " has started successfully.");
     }
 
-    public void finished(int count) {
-        finishedCount = count;
-    }
-
     /**
      * Remote method invoked by the server to respond to a query already sent out by the client.
      *
@@ -97,6 +98,10 @@ public class Client implements ClientCallbackInterface, Serializable {
         lock.unlock();
     }
 
+    /**
+     *
+     * @param response
+     */
     private void acceptResponse(Query response) {
         cache.update(response);
         responses.add(response);
@@ -105,88 +110,15 @@ public class Client implements ClientCallbackInterface, Serializable {
         response.timeStamps[4] = System.currentTimeMillis();
         System.out.println("Query response added. Queries completed: " + responses.size());
 
-        if (responses.size() == 272) {
+        // If we have received the expected number of query responses, we conclude and print the results to file
+        if (responses.size() == expectedQueries) {
             conclude();
         }
     }
 
     /**
-     * Get a server assignment from the proxy-server, parse the query and build a query object,
-     * then send the query object to the server assigned by the proxy-server.
      *
-     * @param queryString: the query as a string.
-     * @param zone:        the zone in which the client is sending the query from.
      */
-    public void processQuery(String queryString, int zone) {
-        // Get a server assignment from the proxy-server
-        getServerAssignment(zone);
-
-        // Parse the query
-        String[] data = queryString.split("\\(");
-        String method = data[0];
-        String[] arguments = data[1].substring(0, data[1].length() - 1).split(",");
-
-        // Build the query object and send the query object to the server for processing
-        try {
-            Query query = null;
-            switch (method) {
-                case "getTimesPlayed" -> {
-                    assert (arguments.length == 1);
-                    query = new GetTimesPlayedQuery(zone, clientNumber, arguments[0]);
-                }
-                case "getTimesPlayedByUser" -> {
-                    assert (arguments.length == 2);
-                    query = new GetTimesPlayedByUserQuery(zone, clientNumber, arguments[0], arguments[1]);
-                }
-                case "getTopThreeMusicByUser" -> {
-                    assert (arguments.length == 1);
-                    query = new GetTopThreeMusicByUserQuery(zone, clientNumber, arguments[0]);
-                }
-                case "getTopArtistsByUserGenre" -> {
-                    assert (arguments.length == 2);
-                    query = new GetTopArtistsByUserGenreQuery(zone, clientNumber, arguments[0], arguments[1]);
-                }
-                default -> {
-                    System.out.println("\nError:\nInvalid remote method query: '" + method + "'.");
-                    System.exit(1);
-                }
-            }
-
-            boolean cacheHit = false;
-            if (clientCache) {
-                Response response = fetchCache(query);
-
-                if (response != null) {
-                    query.response = response;
-                    cacheHit = true;
-                }
-            }
-
-            if (cacheHit) {
-                for (int i = 0; i < 5; i++)
-                    query.timeStamps[i] = System.currentTimeMillis();
-
-                acceptResponse(query);
-            } else {
-                // Finally, set the timestamp for when the query is sent from the client, then send it to the server
-                query.timeStamps[0] = System.currentTimeMillis();
-
-                sentQueries++;
-                System.out.println("Client sending query: " + query.getHashString() + ". Number of queries sent: " + sentQueries);
-                server.sendQuery(query);
-
-            }
-        } catch (Exception e) {
-            System.out.println("\nError:\n" + e);
-            System.out.println("\nSomething went wrong when trying to send query from client_" + clientNumber + " to " + server + ".");
-            System.exit(1);
-        }
-    }
-
-    private Response fetchCache(Query query) {
-        return cache.fetch(query);
-    }
-
     private void conclude() {
         System.out.println("Writing query responses to file ...");
         try {
@@ -236,6 +168,93 @@ public class Client implements ClientCallbackInterface, Serializable {
             e.printStackTrace();
         }
         System.out.println("All query responses have been written to file.");
+    }
+
+    /**
+     * Get a server assignment from the proxy-server, parse the query and build a query object,
+     * then send the query object to the server assigned by the proxy-server.
+     *
+     * @param queryString: the query as a string.
+     * @param zone:        the zone in which the client is sending the query from.
+     */
+    public void processQuery(String queryString, int zone) {
+        // Get a server assignment from the proxy-server
+        getServerAssignment(zone);
+
+        // Parse the query
+        String[] data = queryString.split("\\(");
+        String method = data[0];
+        String[] arguments = data[1].substring(0, data[1].length() - 1).split(",");
+
+        // Build the query object and send the query object to the server for processing
+        try {
+            Query query = null;
+            switch (method) {
+                case "getTimesPlayed" -> {
+                    assert (arguments.length == 1);
+                    query = new GetTimesPlayedQuery(zone, clientNumber, arguments[0]);
+                }
+                case "getTimesPlayedByUser" -> {
+                    assert (arguments.length == 2);
+                    query = new GetTimesPlayedByUserQuery(zone, clientNumber, arguments[0], arguments[1]);
+                }
+                case "getTopThreeMusicByUser" -> {
+                    assert (arguments.length == 1);
+                    query = new GetTopThreeMusicByUserQuery(zone, clientNumber, arguments[0]);
+                }
+                case "getTopArtistsByUserGenre" -> {
+                    assert (arguments.length == 2);
+                    query = new GetTopArtistsByUserGenreQuery(zone, clientNumber, arguments[0], arguments[1]);
+                }
+                default -> {
+                    System.out.println("\nError:\nInvalid remote method query: '" + method + "'.");
+                    System.exit(1);
+                }
+            }
+
+            // Try to client-side cache the query
+            boolean cacheHit = false;
+            if (clientCache) {
+                Response response = fetchCache(query);
+
+                // If the response != null, we have a cache hit
+                if (response != null) {
+                    query.response = response;
+                    cacheHit = true;
+                }
+            }
+
+            // If we cached the query in the client, we just send the query to the response list
+            if (cacheHit) {
+                for (int i = 0; i < 5; i++)
+                    query.timeStamps[i] = System.currentTimeMillis();
+
+                acceptResponse(query);
+            }
+            // If we had a cache miss on the client-side, we send the query to the assigned server for processing
+            else {
+                // Set the timestamp noting the query being sent from the client
+                query.timeStamps[0] = System.currentTimeMillis();
+
+                sentQueries++;
+                System.out.println("Client sending query: " + query.getHashString() + ". Number of queries sent: " + sentQueries);
+                server.sendQuery(query);
+
+            }
+        } catch (Exception e) {
+            System.out.println("\nError:\n" + e);
+            System.out.println("\nSomething went wrong when trying to send query from client_" + clientNumber + " to " + server + ".");
+            System.exit(1);
+        }
+    }
+
+    /**
+     *
+     * @param query
+     * @return
+     */
+    private Response fetchCache(Query query) {
+        return cache.fetch(query);
     }
 
     /**

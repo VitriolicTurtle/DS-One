@@ -2,6 +2,7 @@ package Server.ExecutionServer;
 
 import Client.ClientCallbackInterface;
 import Shared.*;
+import Shared.Query.Query;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;

@@ -1,6 +1,6 @@
 package Server.ExecutionServer;
 
-import Shared.Query;
+import Shared.Query.Query;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

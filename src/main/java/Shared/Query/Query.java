@@ -1,8 +1,9 @@
-package Shared;
+package Shared.Query;
 
 import java.io.Serializable;
 
 import Server.ExecutionServer.ExecutionServer;
+import Shared.Response;
 
 public abstract class Query implements Serializable {
     // Which zone is the client sending the query in

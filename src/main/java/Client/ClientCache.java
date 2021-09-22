@@ -1,6 +1,7 @@
 package Client;
 
 import Shared.*;
+import Shared.Query.Query;
 
 import java.util.*;
 

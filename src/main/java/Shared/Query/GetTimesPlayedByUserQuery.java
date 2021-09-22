@@ -1,34 +1,38 @@
-package Shared;
+package Shared.Query;
+
+import Server.ExecutionServer.ExecutionServer;
+import Shared.MusicProfile;
+import Shared.Response;
 
 import java.io.File;
 import java.util.Scanner;
 
-import Server.ExecutionServer.ExecutionServer;
-
 /**
- * Class that gives the number of times a musicID has been played in total based on the dataset.csv.
+ * Class that gives the number of times a userID has played a specific musicID based on the dataset.csv.
  */
-public class GetTimesPlayedQuery extends Query {
+public class GetTimesPlayedByUserQuery extends Query {
     // Query arguments
     public String musicID;
+    public String userID;
 
     /**
-     * GetTimesPlayed query constructor. The client zone and number of the client sending the query,
+     * GetTimesPlayedByUser query constructor. The client zone and number of the client sending the query,
      * as well as the arguments for the query, are all determined upon creating the query object.
      *
      * @param clientZone: the zone of the client sending the query.
      * @param clientNumber: the (address) number of the client sending the query.
      * @param musicID: the musicID argument for the query.
+     * @param userID: the userID argument for the query.
      */
-    public GetTimesPlayedQuery(int clientZone, int clientNumber, String musicID) {
+    public GetTimesPlayedByUserQuery(int clientZone, int clientNumber, String musicID, String userID) {
         super(clientZone, clientNumber);
         this.musicID = musicID;
+        this.userID = userID;
     }
 
     @Override
     public void run(String filename, ExecutionServer server) {
         response = new Response();
-
         int count = 0;
 
         Scanner scanner = null;
@@ -43,7 +47,7 @@ public class GetTimesPlayedQuery extends Query {
         //  Scan trough entire dataset and count amount of times listened to song by userID.
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
-            if (!line.contains(musicID))
+            if (!line.contains(musicID) || !line.contains(userID))
                 continue;
 
             String[] data = line.split(",");
@@ -57,17 +61,17 @@ public class GetTimesPlayedQuery extends Query {
 
     @Override
     public String getQueryString() {
-        return "GetTimesPlayed";
+        return "GetTimesPlayedByUser";
     }
 
     @Override
     public String getHashString() {
-        return "GetTimesPlayed(" + musicID + ")";
+        return "GetTimesPlayedByUser(" + musicID + "," + userID + ")";
     }
 
     @Override
     public String toString() {
-        String s = "Music '" + musicID + "' was played " + response.plays + " times. ";
+        String s = "Music '" + musicID + "' was played " + response.plays + " times by user '" + userID + "'. ";
         s += "(Turnaround time: " + (timeStamps[4] - timeStamps[0]) + "ms, ";
         s += "execution time: " + (timeStamps[3] - timeStamps[2]) + "ms, ";
         s += "waiting time: " + (timeStamps[2] - timeStamps[1]) + "ms, ";

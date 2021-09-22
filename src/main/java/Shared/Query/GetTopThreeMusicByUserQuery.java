@@ -1,9 +1,15 @@
-package Shared;
+package Shared.Query;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Scanner;
 
 import Server.ExecutionServer.ExecutionServer;
+import Shared.MusicProfile;
+import Shared.Response;
+import Shared.UserProfile;
 
 /**
  * Class that gives the top 3 musicIDs a users has listened to based on the dataset.csv.
@@ -11,9 +17,6 @@ import Server.ExecutionServer.ExecutionServer;
 public class GetTopThreeMusicByUserQuery extends Query {
     // Query arguments
     public String userID;
-
-    // Query results
-    public String[] result;
 
     /**
      * GetTopThreeMusicByUser query constructor. The client zone and number of the client sending the query,
@@ -26,7 +29,6 @@ public class GetTopThreeMusicByUserQuery extends Query {
     public GetTopThreeMusicByUserQuery(int clientZone, int clientNumber, String userID) {
         super(clientZone, clientNumber);
         this.userID = userID;
-        this.result = new String[3];
     }
 
     @Override
