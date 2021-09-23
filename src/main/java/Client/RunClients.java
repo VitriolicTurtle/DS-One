@@ -80,12 +80,15 @@ public class RunClients {
         // ports: registry(startPort), proxy-server(startPort + 1), server0-4(startPort + 2 : startPort + 5), client(startPort + 6)
         // This variable must be identical in RunServers and RunClients
         int startPort = 2400;
-        boolean clientCache = true;
 
         // The input filename
-        //String filename = "src/main/java/Client/Queries/cached_input.txt";
         String inputFilename = args[0];
         String outputFilename = args[1];
+        boolean clientCache = Boolean.parseBoolean(args[2]);
+
+        //String inputFilename = "src/main/java/Client/Queries/cached_input.txt";
+        //String outputFilename = "src/main/java/Client/Outputs/output.txt";
+        //boolean clientCache = true;
 
         System.out.println("Starting client ...");
         RunClients client = new RunClients();

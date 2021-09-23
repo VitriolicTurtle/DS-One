@@ -26,7 +26,7 @@ public class RunServers {
      * Method for initializing 5 server instances.
      * @param numServers: number of servers to be initialized.
      */
-    public void createServers(int numServers, int startPort, Boolean serverCaching, String dataFilename) {
+    public void createServers(int numServers, int startPort, boolean serverCaching, String dataFilename) {
         System.out.println("Starting " + numServers + " servers ...");
 
         servers = new ExecutionServer[numServers];
@@ -50,9 +50,11 @@ public class RunServers {
         // This variable must be identical in RunServers and RunClients
         int startPort = 2400;
         int numServers = 5;
-        Boolean serverCaching = true;
 
         String dataFilename = args[0];
+        Boolean serverCaching = Boolean.parseBoolean(args[1]);
+        //String dataFilename = "src/main/java/Server/Data/dataset.csv";
+        //boolean serverCaching = true;
 
         System.out.println("Server caching is " + ((serverCaching) ? "enabled" : "disabled"));
         RunServers startServers = new RunServers();
