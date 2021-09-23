@@ -15,13 +15,14 @@ public class ExecutionServer implements ExecutionServerInterface {
 
     public int serverZone;
     private int port;
+    private String dataFilename;
 
     private Boolean serverCaching;
     public ExecutionServerCache cache;
 
     ConcurrentLinkedQueue<Query> queue;
 
-    private final String dataFilename = "src/main/java/Server/Data/dataset.csv"; // MAC
+    //private final String dataFilename = "src/main/java/Server/Data/dataset.csv"; // MAC
 
     /**
      * Constructor for server.
@@ -29,10 +30,12 @@ public class ExecutionServer implements ExecutionServerInterface {
      * @param serverZone: which geographical zone the server is in.
      * @param port:       the port the server is running on.
      */
-    public ExecutionServer(Registry registry, int serverZone, int port, Boolean serverCaching) {
+    public ExecutionServer(Registry registry, int serverZone, int port, Boolean serverCaching, String dataFilename) {
         this.registry = registry;
         this.serverZone = serverZone;
         this.port = port;
+        this.dataFilename = dataFilename;
+
         this.queue = new ConcurrentLinkedQueue<>();
         this.serverCaching = serverCaching;
         this.cache = new ExecutionServerCache(100, 100);

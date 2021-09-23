@@ -26,7 +26,7 @@ public class RunServers {
      * Method for initializing 5 server instances.
      * @param numServers: number of servers to be initialized.
      */
-    public void createServers(int numServers, int startPort, Boolean serverCaching) {
+    public void createServers(int numServers, int startPort, Boolean serverCaching, String dataFilename) {
         System.out.println("Starting " + numServers + " servers ...");
 
         servers = new ExecutionServer[numServers];
@@ -36,7 +36,7 @@ public class RunServers {
 
             // Start the 5 processing servers and bind them to the registry
             for (int i = 0; i < numServers; i++)
-                servers[i] = new ExecutionServer(registry, i, startPort + 2 + i, serverCaching);
+                servers[i] = new ExecutionServer(registry, i, startPort + 2 + i, serverCaching, dataFilename);
         } catch (Exception e) {
             System.out.println("Error: " + e);
             System.out.println("Something went wrong when trying to set up and run (processing) servers.");
@@ -52,9 +52,11 @@ public class RunServers {
         int numServers = 5;
         Boolean serverCaching = true;
 
+        String dataFilename = args[0];
+
         System.out.println("Server caching is " + ((serverCaching) ? "enabled" : "disabled"));
         RunServers startServers = new RunServers();
-        startServers.createServers(numServers, startPort, serverCaching);
+        startServers.createServers(numServers, startPort, serverCaching, dataFilename);
         startServers.createProxyServer(numServers, startPort);
     }
 }

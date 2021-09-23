@@ -25,6 +25,7 @@ public class Client implements ClientCallbackInterface, Serializable {
     private int clientNumber;
     private Registry registry = null;
 
+    private String outputFilename;
     private LinkedList<Query> responses;
 
     private boolean clientCache;
@@ -48,8 +49,9 @@ public class Client implements ClientCallbackInterface, Serializable {
      *
      * @param clientNumber: unique ID for the client.
      */
-    public Client(int clientNumber, int port, boolean clientCache) {
+    public Client(int clientNumber, int port, boolean clientCache, String outputFilename) {
         this.clientNumber = clientNumber;
+        this.outputFilename = outputFilename;
         this.responses = new LinkedList<>();
 
         this.clientCache = clientCache;
@@ -123,7 +125,8 @@ public class Client implements ClientCallbackInterface, Serializable {
         System.out.println("Writing query responses to file ...");
         try {
             //File file = new File("src\\main\\java\\Client\\Outputs\\output.txt"); // WINDOWS
-            File file = new File("src/main/java/Client/Outputs/output.txt"); // MAC
+            //File file = new File("src/main/java/Client/Outputs/output.txt"); // MAC
+            File file = new File(outputFilename);
             FileWriter writer = new FileWriter(file);
 
             int numQueriesCompleted = responses.size();

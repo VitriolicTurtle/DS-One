@@ -14,8 +14,8 @@ public class RunClients {
     /**
      * Method for creating the client object.
      */
-    public void runClient(int startPort, boolean clientCache) {
-        client = new Client(0, startPort + 7, clientCache);
+    public void runClient(int startPort, boolean clientCache, String outputFilename) {
+        client = new Client(0, startPort + 7, clientCache, outputFilename);
     }
 
     public void readQueryFile(String filename) {
@@ -83,13 +83,15 @@ public class RunClients {
         boolean clientCache = true;
 
         // The input filename
-        String filename = "src/main/java/Client/Queries/cached_input.txt";
+        //String filename = "src/main/java/Client/Queries/cached_input.txt";
+        String inputFilename = args[0];
+        String outputFilename = args[1];
 
         System.out.println("Starting client ...");
         RunClients client = new RunClients();
 
-        client.runClient(startPort, clientCache);
-        client.readQueryFile(filename);
+        client.runClient(startPort, clientCache, outputFilename);
+        client.readQueryFile(inputFilename);
         client.sendQueries();
     }
 }
